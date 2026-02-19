@@ -1,0 +1,14 @@
+version: "3.9"
+
+name: tanstack-aws-deploy
+services:
+  postgres:
+    image: postgres:18.1
+    container_name: tanstack-aws-deploy-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: tanstack-aws-deploy
+    ports:
+      - "5432:5432"
