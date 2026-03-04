@@ -1,18 +1,18 @@
-import '@/polyfill';
+import '@/polyfill'
 
-import { SmartCoercionPlugin } from '@orpc/json-schema';
-import { OpenAPIHandler } from '@orpc/openapi/fetch';
-import { OpenAPIReferencePlugin } from '@orpc/openapi/plugins';
-import { onError } from '@orpc/server';
-import { ZodToJsonSchemaConverter } from '@orpc/zod/zod4';
-import { createFileRoute } from '@tanstack/react-router';
-import { TodoSchemas } from '@/features/todo/todo.schema';
-import { router } from '@/orpc/orpc.router';
+import { SmartCoercionPlugin } from '@orpc/json-schema'
+import { OpenAPIHandler } from '@orpc/openapi/fetch'
+import { OpenAPIReferencePlugin } from '@orpc/openapi/plugins'
+import { onError } from '@orpc/server'
+import { ZodToJsonSchemaConverter } from '@orpc/zod/zod4'
+import { createFileRoute } from '@tanstack/react-router'
+import { TodoSchemas } from '@/features/todo/todo.schema'
+import { router } from '@/orpc/orpc.router'
 
 const handler = new OpenAPIHandler(router, {
   interceptors: [
     onError((error: Error) => {
-      console.error(error);
+      console.error(error)
     })
   ],
   plugins: [
@@ -51,15 +51,15 @@ const handler = new OpenAPIHandler(router, {
       }
     })
   ]
-});
+})
 
 const handle = async ({ request }: { request: Request }) => {
   const { response } = await handler.handle(request, {
     prefix: '/api'
-  });
+  })
 
-  return response ?? new Response('Not Found', { status: 404 });
-};
+  return response ?? new Response('Not Found', { status: 404 })
+}
 
 export const Route = createFileRoute('/api/$')({
   server: {
@@ -67,4 +67,4 @@ export const Route = createFileRoute('/api/$')({
       ANY: handle
     }
   }
-});
+})

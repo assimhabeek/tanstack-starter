@@ -1,7 +1,7 @@
-import { todoRouter } from '@/features/todo/todo.router';
+import { todoRouter } from '@/features/todo/todo.router'
 
 export const router = {
   todo: todoRouter
-};
+}
 
-export type Router = typeof router;
+export type Router = typeof router

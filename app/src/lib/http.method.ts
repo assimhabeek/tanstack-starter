@@ -6,4 +6,4 @@ export const HTTP_METHOD = {
   DELETE: 'DELETE',
   OPTIONS: 'OPTIONS',
   HEAD: 'HEAD'
-} as const;
+} as const

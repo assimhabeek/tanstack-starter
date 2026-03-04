@@ -1,7 +1,7 @@
-import { eq } from 'drizzle-orm';
-import type { Database } from '@/db/db';
-import { todoTable } from '@/db/schema';
-import type { CrudService } from '@/lib/crud.service.interface';
+import { eq } from 'drizzle-orm'
+import type { Database } from '@/db/db'
+import { todoTable } from '@/db/schema'
+import type { CrudService } from '@/lib/crud.service.interface'
 import type {
   TodoCreateInput,
   TodoCreateOutput,
@@ -13,7 +13,7 @@ import type {
   TodoFindOutput,
   TodoUpdateInput,
   TodoUpdateOutput
-} from './todo.schema';
+} from './todo.schema'
 
 export class TodoService
   implements
@@ -33,11 +33,11 @@ export class TodoService
   constructor(private db: Database) {}
 
   find({ limit, offset }: TodoFindInput): Promise<TodoFindOutput> {
-    return this.db.query.todos.findMany({ limit, offset });
+    return this.db.query.todos.findMany({ limit, offset })
   }
 
   findOne({ id }: TodoFindOneInput): Promise<TodoFindOneOutput> {
-    return this.db.query.todos.findFirst({ where: { id } });
+    return this.db.query.todos.findFirst({ where: { id } })
   }
 
   create({ name }: TodoCreateInput): Promise<TodoCreateOutput> {
@@ -45,7 +45,7 @@ export class TodoService
       .insert(todoTable)
       .values({ name })
       .returning()
-      .then((rows) => rows[0]);
+      .then((rows) => rows[0])
   }
 
   update(input: TodoUpdateInput): Promise<TodoUpdateOutput> {
@@ -54,7 +54,7 @@ export class TodoService
       .set(input.data)
       .where(eq(todoTable.id, input.id))
       .returning()
-      .then((rows) => rows[0]);
+      .then((rows) => rows[0])
   }
 
   remove(input: TodoDeleteInput): Promise<TodoDeleteOutput> {
@@ -62,6 +62,6 @@ export class TodoService
       .delete(todoTable)
       .where(eq(todoTable.id, input.id))
       .returning()
-      .then((rows) => rows[0]);
+      .then((rows) => rows[0])
   }
 }

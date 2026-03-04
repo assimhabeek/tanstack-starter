@@ -1,9 +1,9 @@
-'use client';
+'use client'
 
-import { useForm } from '@tanstack/react-form';
-import { useId } from 'react';
-import z from 'zod';
-import { Button } from '@/components/ui/button';
+import { useForm } from '@tanstack/react-form'
+import { useId } from 'react'
+import z from 'zod'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogClose,
@@ -12,25 +12,25 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle
-} from '@/components/ui/dialog';
-import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
-import { type Todo, TodoSchemas, type TodoUpdateInput } from './todo.schema';
+} from '@/components/ui/dialog'
+import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
+import { Input } from '@/components/ui/input'
+import { type Todo, TodoSchemas, type TodoUpdateInput } from './todo.schema'
 
 interface Props {
-  todo: Todo;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onAction: (update: TodoUpdateInput) => void;
+  todo: Todo
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onAction: (update: TodoUpdateInput) => void
 }
 
 // In form name field is required, unlike in api where we don't have to send it if we don't want to updated it
 const formSchema = TodoSchemas.UpdateInputSchema.shape.data.extend({
   name: z.string().min(1)
-});
+})
 
 export const UpdateTodoDialog = ({ onOpenChange, open, todo, onAction }: Props) => {
-  const formId = useId();
+  const formId = useId()
   const form = useForm({
     formId,
     defaultValues: todo as TodoUpdateInput['data'],
@@ -39,15 +39,15 @@ export const UpdateTodoDialog = ({ onOpenChange, open, todo, onAction }: Props) 
       onSubmit: formSchema
     },
     onSubmit: ({ value }) => onAction({ id: todo.id, data: value })
-  });
+  })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <form
         id={formId}
         onSubmit={(e) => {
-          e.preventDefault();
-          form.handleSubmit();
+          e.preventDefault()
+          form.handleSubmit()
         }}
       >
         <DialogContent className="sm:max-w-[425px]">
@@ -63,7 +63,7 @@ export const UpdateTodoDialog = ({ onOpenChange, open, todo, onAction }: Props) 
               name="name"
               // biome-ignore lint/correctness/noChildrenProp: by design form.Field, requires children prop.
               children={(field) => {
-                const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={field.name}>
@@ -82,7 +82,7 @@ export const UpdateTodoDialog = ({ onOpenChange, open, todo, onAction }: Props) 
                     />
                     {isInvalid && <FieldError errors={field.state.meta.errors} />}
                   </Field>
-                );
+                )
               }}
             />
           </FieldGroup>
@@ -112,5 +112,5 @@ export const UpdateTodoDialog = ({ onOpenChange, open, todo, onAction }: Props) 
         </DialogContent>
       </form>
     </Dialog>
-  );
-};
+  )
+}

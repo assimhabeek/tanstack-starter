@@ -1,7 +1,7 @@
-'use client';
+'use client'
 
-import { MoreHorizontal } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { MoreHorizontal } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,12 +9,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
-import type { Todo } from './todo.schema';
+} from '@/components/ui/dropdown-menu'
+import type { Todo } from './todo.schema'
 export interface ActionCellProps {
-  todo: Todo;
-  onDelete: (input: Todo) => void;
-  onUpdate: (input: Todo) => void;
+  todo: Todo
+  onDelete: (input: Todo) => void
+  onUpdate: (input: Todo) => void
 }
 
 export const ActionCell = ({ todo, onUpdate, onDelete }: ActionCellProps) => {
@@ -38,5 +38,5 @@ export const ActionCell = ({ todo, onUpdate, onDelete }: ActionCellProps) => {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
-};
+  )
+}

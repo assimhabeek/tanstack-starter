@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 import {
   AlertDialog,
@@ -9,14 +9,14 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle
-} from '@/components/ui/alert-dialog';
-import type { Todo, TodoDeleteInput } from './todo.schema';
+} from '@/components/ui/alert-dialog'
+import type { Todo, TodoDeleteInput } from './todo.schema'
 
 interface Props {
-  todo: Todo;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onAction: (input: TodoDeleteInput) => void;
+  todo: Todo
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onAction: (input: TodoDeleteInput) => void
 }
 export const DeleteTodoDialog = ({ todo, open, onOpenChange, onAction }: Props) => {
   return (
@@ -35,5 +35,5 @@ export const DeleteTodoDialog = ({ todo, open, onOpenChange, onAction }: Props) 
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  );
-};
+  )
+}
