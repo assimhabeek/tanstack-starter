@@ -8,6 +8,7 @@
     "check": "biome check --write --unsafe"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.5"
+    "@biomejs/biome": "2.4.5",
+    "lefthook": "^2.1.2"
   }
 }
