@@ -1,5 +1,6 @@
 {
   "name": "workspaces",
+  "type": "module",
   "private": true,
   "version": "1.0.0",
   "scripts": {
@@ -9,6 +10,15 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.5",
+    "@commitlint/cli": "^20.4.3",
+    "@commitlint/config-conventional": "^20.4.3",
+    "commitizen": "^4.3.1",
+    "cz-conventional-changelog": "^3.3.0",
     "lefthook": "^2.1.2"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
