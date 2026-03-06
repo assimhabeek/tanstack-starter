@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { execSync } from 'node:child_process'
+import { spawnSync } from 'node:child_process'
 import { GoogleGenAI } from '@google/genai'
 import dotenv from 'dotenv'
 
@@ -11,58 +11,64 @@ const API_KEY = process.env.GEMINI_API_KEY
 const ai = new GoogleGenAI({ apiKey: API_KEY })
 
 // 2️⃣ Utility: run shell commands
-const runCommand = (command, { inherit = false } = {}) => {
-  try {
-    return execSync(command, {
-      encoding: 'utf-8',
-      stdio: inherit ? 'inherit' : undefined,
-      shell: true, // <--- ensures commands like gh are found
-      env: process.env
-    })
-  } catch (err) {
-    console.error(`💥 Command failed: ${command}`)
-    throw err
-  }
+const runCommand = (command, args, { inherit = false } = {}) => {
+  const result = spawnSync(command, args, {
+    encoding: 'utf-8',
+    stdio: inherit ? 'inherit' : 'pipe', // inherit for live output
+    env: process.env,
+    shell: false // important! avoid shell parsing
+  })
+
+  if (result.error) throw result.error
+  if (result.status !== 0) throw new Error(result.stderr)
+
+  return result.stdout?.trim()
 }
 
 // 3️⃣ Git operations
 const git = {
   diff: () => {
     console.log('🔍 Analyzing git changes...')
-    return runCommand('git diff main...HEAD')
+    const result = runCommand('git', ['diff', 'main...HEAD'])
+    return result.stdout?.trim() || ''
   },
 
   currentBranch: () => {
     console.log('🔍 Detecting current branch...')
-    return runCommand('git rev-parse --abbrev-ref HEAD')
+    const result = runCommand('git', ['rev-parse', '--abbrev-ref', 'HEAD'])
+    return result.stdout?.trim() || ''
   },
 
   pushBranch: (branch) => {
     console.log(`📤 Pushing branch '${branch}' to remote...`)
-    runCommand(`git push --set-upstream origin ${branch}`, { inherit: true })
+    runCommand('git', ['push', '--set-upstream', 'origin', branch], { inherit: true })
   },
 
   findPR: (branch) => {
     console.log('🔍 Checking for existing PR...')
-    try {
-      return runCommand(`gh pr list --head ${branch} --json url -q '.[0].url'`)
-    } catch {
-      return null
-    }
+    const result = runCommand('gh', [
+      'pr',
+      'list',
+      '--head',
+      branch,
+      '--json',
+      'url',
+      '-q',
+      '.[0].url'
+    ])
+    return result.stdout?.trim() || null
   },
 
   updatePR: (prUrl, title, body) => {
     console.log(`✏️ Updating existing PR: ${prUrl}`)
-    runCommand(
-      `gh pr edit ${prUrl} --title "${title.replace(/"/g, '\\"')}" --body "${body.replace(/"/g, '\\"')}"`,
-      { inherit: true }
-    )
+    runCommand('gh', ['pr', 'edit', prUrl, '--title', title, '--body', body], { inherit: true })
   },
 
   createPR: (branch, title, body) => {
     console.log(`🚀 Creating new PR from branch '${branch}'`)
     runCommand(
-      `gh pr create --title "${title.replace(/"/g, '\\"')}" --body "${body.replace(/"/g, '\\"')}" --base main --head ${branch}`,
+      'gh',
+      ['pr', 'create', '--title', title, '--body', body, '--base', 'main', '--head', branch],
       { inherit: true }
     )
   }
