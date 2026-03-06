@@ -17,12 +17,18 @@ importers:
       '@commitlint/config-conventional':
         specifier: ^20.4.3
         version: 20.4.3
+      '@google/genai':
+        specifier: ^1.44.0
+        version: 1.44.0(@modelcontextprotocol/sdk@1.27.1(zod@4.3.6))
       commitizen:
         specifier: ^4.3.1
         version: 4.3.1(@types/node@22.19.13)(typescript@5.9.3)
       cz-conventional-changelog:
         specifier: ^3.3.0
         version: 3.3.0(@types/node@22.19.13)(typescript@5.9.3)
+      dotenv:
+        specifier: ^16.0.0
+        version: 16.6.1
       lefthook:
         specifier: ^2.1.2
         version: 2.1.2
@@ -100,7 +106,7 @@ importers:
         version: 8.19.4
       '@tanstack/react-ai-devtools':
         specifier: latest
-        version: 0.2.10(@types/react@19.2.14)(csstype@3.2.3)(react@19.2.4)(solid-js@1.9.11)
+        version: 0.2.11(@types/react@19.2.14)(csstype@3.2.3)(react@19.2.4)(solid-js@1.9.11)
       '@tanstack/react-devtools':
         specifier: ^0.7.0
         version: 0.7.11(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(csstype@3.2.3)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(solid-js@1.9.11)
@@ -1161,6 +1167,15 @@ packages:
 
   '@google/genai@1.43.0':
     resolution: {integrity: sha512-hklCsJNdMlDM1IwcCVcGQFBg2izY0+t5BIGbRsxi2UnKi6AGKL7pqJqmBDNRbw0bYCs4y3NA7TB+fkKfP/Nrdw==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      '@modelcontextprotocol/sdk': ^1.25.2
+    peerDependenciesMeta:
+      '@modelcontextprotocol/sdk':
+        optional: true
+
+  '@google/genai@1.44.0':
+    resolution: {integrity: sha512-kRt9ZtuXmz+tLlcNntN/VV4LRdpl6ZOu5B1KbfNgfR65db15O6sUQcwnwLka8sT/V6qysD93fWrgJHF2L7dA9A==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       '@modelcontextprotocol/sdk': ^1.25.2
@@ -3044,8 +3059,8 @@ packages:
   '@tanstack/ai-client@0.5.1':
     resolution: {integrity: sha512-96Qm8sQYBgfLIUR3f09aaLERsNtg+lpZ1J2jiqFTc8YiL+21Ya2Q1JDU3Opd8nNDIhvjwv1tdNxXAsZnwGKKKQ==}
 
-  '@tanstack/ai-devtools-core@0.3.6':
-    resolution: {integrity: sha512-SpAtapoc5y0Typvjc5CCKLppUkwof0/L6qA7w9/xp6rPqqzr7K2ckFWe6K3Z+nTt0CwVW6MJKL54f0zHzK7y7w==}
+  '@tanstack/ai-devtools-core@0.3.7':
+    resolution: {integrity: sha512-fzDIjgpplief2hIT0kopCNZAVZ6YEa6WPvq29l5tvm+XkJe1EjlhmzK+BJdbSO3GAXaMqcBV6/Mg70KzW7FfCQ==}
 
   '@tanstack/ai-gemini@0.7.0':
     resolution: {integrity: sha512-A2ahYPbQ15bOfn0byE6g6dzCL/pSxhmBBCDjj+Mrwu5xLnhfwkSTkb+GnXCs6QTQOrg3lww1vZjRt251tr6u9A==}
@@ -3100,8 +3115,14 @@ packages:
     peerDependencies:
       solid-js: '>=1.9.7'
 
-  '@tanstack/devtools-utils@0.3.0':
-    resolution: {integrity: sha512-JgApXVrgtgSLIPrm/QWHx0u6c9Ji0MNMDWhwujapj8eMzux5aOfi+2Ycwzj0A0qITXA12SEPYV3HC568mDtYmQ==}
+  '@tanstack/devtools-ui@0.5.0':
+    resolution: {integrity: sha512-nNZ14054n31fWB61jtWhZYLRdQ3yceCE3G/RINoINUB0RqIGZAIm9DnEDwOTAOfqt4/a/D8vNk8pJu6RQUp74g==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      solid-js: '>=1.9.7'
+
+  '@tanstack/devtools-utils@0.3.2':
+    resolution: {integrity: sha512-fu9wmE2bHigiE1Lc5RFSchgdN35wX15TqfB4O4vJa6SqX9JH2ov57J60u18lheROaBiteloPzcCbkLNpx0aacw==}
     engines: {node: '>=18'}
     peerDependencies:
       '@types/react': '>=17.0.0'
@@ -3154,8 +3175,8 @@ packages:
   '@tanstack/query-devtools@5.93.0':
     resolution: {integrity: sha512-+kpsx1NQnOFTZsw6HAFCW3HkKg0+2cepGtAWXjiiSOJJ1CtQpt72EE2nyZb+AjAbLRPoeRmPJ8MtQd8r8gsPdg==}
 
-  '@tanstack/react-ai-devtools@0.2.10':
-    resolution: {integrity: sha512-nR7HtXldh8b8UX0nUq2va0/WV2Y+5DvSQrxbPyhxUS4M7fmZX9OX/BEnfKXFPcHfD7PZTlO0SG5foWcvJAwxyg==}
+  '@tanstack/react-ai-devtools@0.2.11':
+    resolution: {integrity: sha512-uYwmYnjucuMa6z3LoDk7tTvGqrr8zudjZscAb1QSOJzWGvNcOKA7XJ3YQx/sT/tgu+ObH75Gr2HdR7jsauffrw==}
     peerDependencies:
       '@types/react': ^17.0.0 || ^18.0.0 || ^19.0.0
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -8277,6 +8298,19 @@ snapshots:
       - supports-color
       - utf-8-validate
 
+  '@google/genai@1.44.0(@modelcontextprotocol/sdk@1.27.1(zod@4.3.6))':
+    dependencies:
+      google-auth-library: 10.6.1
+      p-retry: 4.6.2
+      protobufjs: 7.5.4
+      ws: 8.19.0
+    optionalDependencies:
+      '@modelcontextprotocol/sdk': 1.27.1(zod@4.3.6)
+    transitivePeerDependencies:
+      - bufferutil
+      - supports-color
+      - utf-8-validate
+
   '@hono/node-server@1.19.10(hono@4.12.4)':
     dependencies:
       hono: 4.12.4
@@ -10310,11 +10344,11 @@ snapshots:
     dependencies:
       '@tanstack/ai': 0.6.1
 
-  '@tanstack/ai-devtools-core@0.3.6(@types/react@19.2.14)(csstype@3.2.3)(react@19.2.4)':
+  '@tanstack/ai-devtools-core@0.3.7(@types/react@19.2.14)(csstype@3.2.3)(react@19.2.4)':
     dependencies:
       '@tanstack/ai': 0.6.1
-      '@tanstack/devtools-ui': 0.4.4(csstype@3.2.3)(solid-js@1.9.11)
-      '@tanstack/devtools-utils': 0.3.0(@types/react@19.2.14)(csstype@3.2.3)(react@19.2.4)(solid-js@1.9.11)
+      '@tanstack/devtools-ui': 0.5.0(csstype@3.2.3)(solid-js@1.9.11)
+      '@tanstack/devtools-utils': 0.3.2(@types/react@19.2.14)(csstype@3.2.3)(react@19.2.4)(solid-js@1.9.11)
       goober: 2.1.18(csstype@3.2.3)
       solid-js: 1.9.11
     transitivePeerDependencies:
@@ -10386,9 +10420,18 @@ snapshots:
     transitivePeerDependencies:
       - csstype
 
-  '@tanstack/devtools-utils@0.3.0(@types/react@19.2.14)(csstype@3.2.3)(react@19.2.4)(solid-js@1.9.11)':
+  '@tanstack/devtools-ui@0.5.0(csstype@3.2.3)(solid-js@1.9.11)':
     dependencies:
-      '@tanstack/devtools-ui': 0.4.4(csstype@3.2.3)(solid-js@1.9.11)
+      clsx: 2.1.1
+      dayjs: 1.11.19
+      goober: 2.1.18(csstype@3.2.3)
+      solid-js: 1.9.11
+    transitivePeerDependencies:
+      - csstype
+
+  '@tanstack/devtools-utils@0.3.2(@types/react@19.2.14)(csstype@3.2.3)(react@19.2.4)(solid-js@1.9.11)':
+    dependencies:
+      '@tanstack/devtools-ui': 0.5.0(csstype@3.2.3)(solid-js@1.9.11)
     optionalDependencies:
       '@types/react': 19.2.14
       react: 19.2.4
@@ -10448,10 +10491,10 @@ snapshots:
 
   '@tanstack/query-devtools@5.93.0': {}
 
-  '@tanstack/react-ai-devtools@0.2.10(@types/react@19.2.14)(csstype@3.2.3)(react@19.2.4)(solid-js@1.9.11)':
+  '@tanstack/react-ai-devtools@0.2.11(@types/react@19.2.14)(csstype@3.2.3)(react@19.2.4)(solid-js@1.9.11)':
     dependencies:
-      '@tanstack/ai-devtools-core': 0.3.6(@types/react@19.2.14)(csstype@3.2.3)(react@19.2.4)
-      '@tanstack/devtools-utils': 0.3.0(@types/react@19.2.14)(csstype@3.2.3)(react@19.2.4)(solid-js@1.9.11)
+      '@tanstack/ai-devtools-core': 0.3.7(@types/react@19.2.14)(csstype@3.2.3)(react@19.2.4)
+      '@tanstack/devtools-utils': 0.3.2(@types/react@19.2.14)(csstype@3.2.3)(react@19.2.4)(solid-js@1.9.11)
       '@types/react': 19.2.14
       react: 19.2.4
     transitivePeerDependencies:

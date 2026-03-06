@@ -7,14 +7,16 @@
     "format": "biome format --write",
     "lint": "biome lint --write --unsafe",
     "check": "biome check --write --unsafe",
-    "create-pr": "bash ./scripts/create-pr.sh"
+    "create-pr": "node ./scripts/create-pr.js"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.5",
     "@commitlint/cli": "^20.4.3",
     "@commitlint/config-conventional": "^20.4.3",
+    "@google/genai": "^1.44.0",
     "commitizen": "^4.3.1",
     "cz-conventional-changelog": "^3.3.0",
+    "dotenv": "^16.0.0",
     "lefthook": "^2.1.2"
   },
   "config": {
