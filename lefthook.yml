@@ -32,9 +32,3 @@ pre-push:
     
     branch-name:
       run: scripts/validate-branch-name.sh
-
-
-post-push:
-  commands:
-    create-pr:
-      run: scripts/create-pr.sh

@@ -6,7 +6,8 @@
   "scripts": {
     "format": "biome format --write",
     "lint": "biome lint --write --unsafe",
-    "check": "biome check --write --unsafe"
+    "check": "biome check --write --unsafe",
+    "create-pr": "bash ./scripts/create-pr.sh"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.5",
