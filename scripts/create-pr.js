@@ -18,7 +18,7 @@ const runCommand = (command, { inherit = false } = {}) => {
       stdio: inherit ? 'inherit' : undefined,
       shell: true, // <--- ensures commands like gh are found
       env: process.env
-    }).trim()
+    })
   } catch (err) {
     console.error(`💥 Command failed: ${command}`)
     throw err
@@ -78,9 +78,9 @@ You are a lead developer. Based on the following git diff, generate:
 1. A **type** for the PR: one of feat, fix, docs, chore, refactor, test
 2. A **scope** if applicable (optional short module/area)
 3. A **short description** suitable for a PR title (max 80 chars)
-4. A **detailed PR description in Markdown**, including:
+4. A **detailed PR description well written and formatted in Markdown**, including:
    - ## Overview
-   - ## Changes Made
+   - ## Changes made to each file one by one. If multiple changes are made to a file, list them all. focus readability and clean formatting. 
    - ## Checklist (Markdown checkboxes)
 
 Return the result in JSON format:
@@ -90,6 +90,8 @@ Return the result in JSON format:
   "shortDescription": "...",
   "body": "..."
 }
+
+Return ONLY JSON, no extra text.
 
 Git Diff:
 ${diff}
