@@ -15,7 +15,9 @@ const runCommand = (command, { inherit = false } = {}) => {
   try {
     return execSync(command, {
       encoding: 'utf-8',
-      stdio: inherit ? 'inherit' : undefined
+      stdio: inherit ? 'inherit' : undefined,
+      shell: true, // <--- ensures commands like gh are found
+      env: process.env
     }).trim()
   } catch (err) {
     console.error(`💥 Command failed: ${command}`)
