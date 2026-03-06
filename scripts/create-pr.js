@@ -29,39 +29,25 @@ const runCommand = (command, args, { inherit = false } = {}) => {
 const git = {
   diff: () => {
     console.log('🔍 Analyzing git changes...')
-    const result = runCommand('git', ['diff', 'main...HEAD'])
-    return result.stdout?.trim() || ''
+    return runCommand('git', ['diff', 'main...HEAD'])
   },
 
   currentBranch: () => {
     console.log('🔍 Detecting current branch...')
-    const result = runCommand('git', ['rev-parse', '--abbrev-ref', 'HEAD'])
-    return result.stdout?.trim() || ''
-  },
-
-  pushBranch: (branch) => {
-    console.log(`📤 Pushing branch '${branch}' to remote...`)
-    runCommand('git', ['push', '--set-upstream', 'origin', branch], { inherit: true })
+    return runCommand('git', ['rev-parse', '--abbrev-ref', 'HEAD'])
   },
 
   findPR: (branch) => {
     console.log('🔍 Checking for existing PR...')
-    const result = runCommand('gh', [
-      'pr',
-      'list',
-      '--head',
-      branch,
-      '--json',
-      'url',
-      '-q',
-      '.[0].url'
-    ])
-    return result.stdout?.trim() || null
+    return runCommand('gh', ['pr', 'list', '--head', branch, '--json', 'url', '-q', '.[0].url'])
+      .split('/')
+      .pop()
   },
 
-  updatePR: (prUrl, title, body) => {
-    console.log(`✏️ Updating existing PR: ${prUrl}`)
-    runCommand('gh', ['pr', 'edit', prUrl, '--title', title, '--body', body], { inherit: true })
+  updatePR: (prNumber, title, body) => {
+    console.log(`✏️ Updating existing PR: ${prNumber}`)
+    runCommand('gh', ['pr', 'edit', prNumber, '--title', title, '--body', body], { inherit: true })
+    console.log('✅ Pull Request successfully updated!')
   },
 
   createPR: (branch, title, body) => {
@@ -71,6 +57,7 @@ const git = {
       ['pr', 'create', '--title', title, '--body', body, '--base', 'main', '--head', branch],
       { inherit: true }
     )
+    console.log('✅ Pull Request successfully created!')
   }
 }
 
@@ -85,9 +72,9 @@ You are a lead developer. Based on the following git diff, generate:
 2. A **scope** if applicable (optional short module/area)
 3. A **short description** suitable for a PR title (max 80 chars)
 4. A **detailed PR description well written and formatted in Markdown**, including:
-   - ## Overview
-   - ## Changes made to each file one by one. If multiple changes are made to a file, list them all. focus readability and clean formatting. 
-   - ## Checklist (Markdown checkboxes)
+   - ## Overview:
+   - ## Changes: (the changes made to each file one by one. If multiple changes are made to a file, list them all. focus readability and clean formatting.) 
+   - ## Checklist: (Markdown checkboxes)
 
 Return the result in JSON format:
 {
@@ -112,6 +99,7 @@ ${diff}
   try {
     data = JSON.parse(response.text)
   } catch {
+    console.log(response.text)
     console.warn('⚠️ Failed to parse LLM response. Using fallback.')
     data = {
       type: 'feat',
@@ -148,12 +136,9 @@ const main = async () => {
     }
 
     const branch = git.currentBranch()
-    git.pushBranch(branch)
 
     const { title, body } = await generatePRContent(diff)
     upsertPR(branch, title, body)
-
-    console.log('✅ Pull Request successfully created/updated!')
   } catch (err) {
     console.error('💥 Fatal error:', err instanceof Error ? err.message : err)
     console.log("\nTip: Ensure 'gh' CLI is installed and authenticated via 'gh auth login'")
