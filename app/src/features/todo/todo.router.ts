@@ -1,8 +1,8 @@
-import { implement } from '@orpc/server';
-import { type TodoContract, todoContract } from './todo.contract';
-import { todoServiceProvider } from './todo.service.provider';
+import { implement } from '@orpc/server'
+import { type TodoContract, todoContract } from './todo.contract'
+import { todoServiceProvider } from './todo.service.provider'
 
-const os = implement<TodoContract>(todoContract).use(todoServiceProvider);
+const os = implement<TodoContract>(todoContract).use(todoServiceProvider)
 
 export const todoRouter = {
   find: os.find
@@ -28,4 +28,4 @@ export const todoRouter = {
     .handler(({ input, context }) => context.todoService.remove(input))
     .actionable()
     .callable()
-};
+}

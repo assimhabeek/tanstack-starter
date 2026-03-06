@@ -1,6 +1,6 @@
-import { oc } from '@orpc/contract';
-import { HTTP_METHOD } from '@/lib/http.method';
-import { TodoSchemas } from './todo.schema';
+import { oc } from '@orpc/contract'
+import { HTTP_METHOD } from '@/lib/http.method'
+import { TodoSchemas } from './todo.schema'
 
 const find = oc
   .route({
@@ -8,7 +8,7 @@ const find = oc
     path: '/todos'
   })
   .input(TodoSchemas.FindInputSchema)
-  .output(TodoSchemas.FindOutputSchema);
+  .output(TodoSchemas.FindOutputSchema)
 
 const findOne = oc
   .route({
@@ -16,7 +16,7 @@ const findOne = oc
     path: '/todos/:id'
   })
   .input(TodoSchemas.FindOneInputSchema)
-  .output(TodoSchemas.FindOneOutputSchema);
+  .output(TodoSchemas.FindOneOutputSchema)
 
 const create = oc
   .route({
@@ -24,7 +24,7 @@ const create = oc
     path: '/todos'
   })
   .input(TodoSchemas.CreateInputSchema)
-  .output(TodoSchemas.CreateOutputSchema);
+  .output(TodoSchemas.CreateOutputSchema)
 
 const update = oc
   .route({
@@ -32,7 +32,7 @@ const update = oc
     path: '/todos'
   })
   .input(TodoSchemas.UpdateInputSchema)
-  .output(TodoSchemas.UpdateOutputSchema);
+  .output(TodoSchemas.UpdateOutputSchema)
 
 const remove = oc
   .route({
@@ -40,7 +40,7 @@ const remove = oc
     path: '/todos'
   })
   .input(TodoSchemas.DeleteInputSchema)
-  .output(TodoSchemas.DeleteOutputSchema);
+  .output(TodoSchemas.DeleteOutputSchema)
 
 export const todoContract = {
   find,
@@ -48,6 +48,6 @@ export const todoContract = {
   create,
   update,
   remove
-};
+}
 
-export type TodoContract = typeof todoContract;
+export type TodoContract = typeof todoContract

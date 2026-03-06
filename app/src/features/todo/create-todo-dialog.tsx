@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
-import { useForm } from '@tanstack/react-form';
-import { useId } from 'react';
-import { Button } from '@/components/ui/button';
+import { useForm } from '@tanstack/react-form'
+import { useId } from 'react'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogClose,
@@ -10,21 +10,21 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle
-} from '@/components/ui/dialog';
-import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
-import { type TodoCreateInput, TodoSchemas } from './todo.schema';
+} from '@/components/ui/dialog'
+import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
+import { Input } from '@/components/ui/input'
+import { type TodoCreateInput, TodoSchemas } from './todo.schema'
 
 interface Props {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onAction: (create: TodoCreateInput) => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onAction: (create: TodoCreateInput) => void
 }
 
-const formSchema = TodoSchemas.CreateInputSchema;
+const formSchema = TodoSchemas.CreateInputSchema
 
 export const CreateTodoDialog = ({ onOpenChange, open, onAction }: Props) => {
-  const formId = useId();
+  const formId = useId()
 
   const form = useForm({
     formId,
@@ -36,15 +36,15 @@ export const CreateTodoDialog = ({ onOpenChange, open, onAction }: Props) => {
       onSubmit: formSchema
     },
     onSubmit: ({ value }) => onAction(value)
-  });
+  })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <form
         id={formId}
         onSubmit={(e) => {
-          e.preventDefault();
-          form.handleSubmit();
+          e.preventDefault()
+          form.handleSubmit()
         }}
       >
         <DialogContent className="sm:max-w-[425px]">
@@ -56,7 +56,7 @@ export const CreateTodoDialog = ({ onOpenChange, open, onAction }: Props) => {
               name="name"
               // biome-ignore lint/correctness/noChildrenProp: by design form.Field, requires children prop.
               children={(field) => {
-                const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={field.name}>
@@ -75,7 +75,7 @@ export const CreateTodoDialog = ({ onOpenChange, open, onAction }: Props) => {
                     />
                     {isInvalid && <FieldError errors={field.state.meta.errors} />}
                   </Field>
-                );
+                )
               }}
             />
           </FieldGroup>
@@ -105,5 +105,5 @@ export const CreateTodoDialog = ({ onOpenChange, open, onAction }: Props) => {
         </DialogContent>
       </form>
     </Dialog>
-  );
-};
+  )
+}

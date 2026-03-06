@@ -1,5 +1,5 @@
-import 'dotenv/config';
-import * as Sentry from '@sentry/tanstackstart-react';
+import 'dotenv/config'
+import * as Sentry from '@sentry/tanstackstart-react'
 
 Sentry.init({
   dsn: process.env.VITE_SENTRY_DSN,
@@ -9,4 +9,4 @@ Sentry.init({
   tracesSampleRate: 1.0,
   replaysSessionSampleRate: 1.0,
   replaysOnErrorSampleRate: 1.0
-});
+})
