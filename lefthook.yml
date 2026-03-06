@@ -11,7 +11,7 @@ prepare-commit-msg:
 # Validate commit messages
 commit-msg:
   commands:
-    "lint commit message":
+    lint-commit-message:
       run: pnpm commitlint --edit {1}
 
 pre-commit:
@@ -29,3 +29,12 @@ pre-push:
     check:
       glob: "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}"
       run: npx @biomejs/biome check --no-errors-on-unmatched --files-ignore-unknown=true --colors=off {push_files}
+    
+    branch-name:
+      run: scripts/validate-branch-name.sh
+
+
+post-push:
+  commands:
+    create-pr:
+      run: scripts/create-pr.sh
