@@ -11,7 +11,7 @@ import { router } from '@/orpc/orpc.router'
 
 const handler = new OpenAPIHandler(router, {
   interceptors: [
-    onError((error: Error) => {
+    onError((error) => {
       console.error(error)
     })
   ],
@@ -55,7 +55,8 @@ const handler = new OpenAPIHandler(router, {
 
 const handle = async ({ request }: { request: Request }) => {
   const { response } = await handler.handle(request, {
-    prefix: '/api'
+    prefix: '/api',
+    context: {}
   })
 
   return response ?? new Response('Not Found', { status: 404 })
@@ -64,7 +65,12 @@ const handle = async ({ request }: { request: Request }) => {
 export const Route = createFileRoute('/api/$')({
   server: {
     handlers: {
-      ANY: handle
+      HEAD: handle,
+      GET: handle,
+      POST: handle,
+      PUT: handle,
+      PATCH: handle,
+      DELETE: handle
     }
   }
 })

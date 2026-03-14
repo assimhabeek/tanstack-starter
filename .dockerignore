@@ -1,0 +1,16 @@
+# 1. Ignore everything
+*
+
+# 2. Allow specific folders/files back in
+!pnpm-lock.yaml 
+!pnpm-workspace.yaml 
+!package.json
+!app/package.json
+!app/public
+!app/src
+!app/components.json
+!app/instrument.server.mjs
+!app/tsconfig.json
+!app/vite.config.ts
+!app/vite.instrument.config.ts
+!app/wrangler.jsonc
