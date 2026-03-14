@@ -8,10 +8,9 @@ phases:
     commands:
       - echo "Checking the environment..."
   build:
-  commands:
-    - echo "Build is running on branch..."
-    - git branch --show-current || echo "Not a git repo, checking env vars"
-    - echo "CODEBUILD_SOURCE_VERSION is $CODEBUILD_SOURCE_VERSION"
+    commands:
+      - echo "Hello World! The TanStack Starter pipeline is working."
+      - echo "Build started on `date`"
   post_build:
     commands:
       - echo "Build completed successfully!"
