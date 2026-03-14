@@ -4,7 +4,8 @@ import { z } from 'zod'
 export const env = createEnv({
   server: {
     DATABASE_URL: z.string().min(1).nonempty('Database URL is required'),
-    SENTRY_AUTH_TOKEN: z.string().min(1).nonempty('Sentry Auth Token is required')
+    SENTRY_AUTH_TOKEN: z.string().min(1).nonempty('Sentry Auth Token is required'),
+    CLERK_SECRET_KEY: z.string().min(1).nonempty('Clerk Secret Key is required')
   },
 
   /**
@@ -15,9 +16,7 @@ export const env = createEnv({
 
   client: {
     VITE_APP_TITLE: z.string().min(1).optional(),
-
     VITE_CLERK_PUBLISHABLE_KEY: z.string().min(1).nonempty('Clerk Publishable Key is required'),
-
     VITE_SENTRY_DSN: z.string().min(1).optional()
   },
 
@@ -27,8 +26,12 @@ export const env = createEnv({
    *
    * */
   runtimeEnv: {
-    ...process.env,
-    ...import.meta.env
+    DATABASE_URL: process.env.DATABASE_URL,
+    SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
+    CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
+    VITE_APP_TITLE: import.meta.env.VITE_APP_TITLE,
+    VITE_CLERK_PUBLISHABLE_KEY: import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
+    VITE_SENTRY_DSN: import.meta.env.VITE_SENTRY_DSN
   },
 
   /**

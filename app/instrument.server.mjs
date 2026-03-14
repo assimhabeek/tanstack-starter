@@ -1,4 +1,3 @@
-import 'dotenv/config'
 import * as Sentry from '@sentry/tanstackstart-react'
 
 Sentry.init({

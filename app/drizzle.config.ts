@@ -1,11 +1,15 @@
 import { defineConfig } from 'drizzle-kit'
-import { env } from './env'
 
 export default defineConfig({
   out: './drizzle',
   schema: './src/db/schema.ts',
   dialect: 'postgresql',
   dbCredentials: {
-    url: env.DATABASE_URL
+    ssl: {
+      ca: process.env.DB_CA_CERT?.replace(/\\n/g, '\n'),
+      rejectUnauthorized: true
+    },
+    // biome-ignore lint/style/noNonNullAssertion: add env validation later
+    url: process.env.DATABASE_URL!
   }
 })

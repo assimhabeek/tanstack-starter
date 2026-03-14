@@ -1,9 +1,10 @@
 import { type DefaultError, useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { PlusIcon } from 'lucide-react'
-import { useCallback, useState } from 'react'
+import { Suspense, useCallback, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import { Spinner } from '@/components/ui/spinner'
 import { columns } from '@/features/todo/columns'
 import { CreateTodoDialog } from '@/features/todo/create-todo-dialog'
 import { DataTable } from '@/features/todo/data-table'
@@ -21,13 +22,12 @@ import { UpdateTodoDialog } from '@/features/todo/update-todo-dialog'
 import { orpc } from '@/orpc/orpc'
 
 const todoQueryOptions = orpc.todo.find.queryOptions({
-  input: {},
-  initialData: []
+  input: {}
 })
 
 export const Route = createFileRoute('/')({
   component: App,
-  loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(todoQueryOptions)
+  loader: async ({ context: { queryClient } }) => queryClient.ensureQueryData(todoQueryOptions)
 })
 
 function App() {
@@ -83,14 +83,16 @@ function App() {
             <PlusIcon /> Create Todo
           </Button>
         </div>
+        <Suspense fallback={<Spinner />}>
+          <DataTable<Todo, unknown>
+            columns={columns({
+              onDelete,
+              onUpdate
+            })}
+            data={todos}
+          />
+        </Suspense>
 
-        <DataTable<Todo, unknown>
-          columns={columns({
-            onDelete,
-            onUpdate
-          })}
-          data={todos}
-        />
         <CreateTodoDialog
           open={openCreateDialog}
           onOpenChange={setOpenCreateDialog}
