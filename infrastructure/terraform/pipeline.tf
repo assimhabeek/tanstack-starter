@@ -34,7 +34,7 @@ resource "aws_codebuild_project" "tanstack_build" {
 
   source {
     type      = "CODEPIPELINE"
-    buildspec = "infrastructure/buildspec.yml"
+    buildspec = "buildspec.yml"
   }
 }
 
