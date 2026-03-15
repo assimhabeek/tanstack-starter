@@ -81,7 +81,7 @@ resource "aws_codepipeline" "app_pipeline" {
         FullRepositoryId     = "${var.repository_owner}/${var.repository_name}"
         BranchName           = "main" # Default branch
         DetectChanges        = false
-        OutputArtifactFormat = "CODEBUILD_EXECUTABLE_UTILITY" # This enables 'Full Clone'
+        OutputArtifactFormat = "CODE_ZIP"
       }
     }
   }
