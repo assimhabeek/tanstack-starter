@@ -21,10 +21,11 @@ resource "aws_codebuild_project" "tanstack_build" {
   }
 
   environment {
-    compute_type    = "BUILD_GENERAL1_SMALL"
-    image           = "aws/codebuild/amazonlinux2-x86_64-standard:5.0"
-    type            = "LINUX_CONTAINER"
-    privileged_mode = true # Required for Docker builds
+    compute_type                = "BUILD_GENERAL1_SMALL"
+    image                       = "aws/codebuild/amazonlinux2-x86_64-standard:5.0"
+    type                        = "LINUX_CONTAINER"
+    privileged_mode             = true # Required for Docker builds
+    image_pull_credentials_type = "CODEBUILD"
 
     environment_variable {
       name  = "ECR_URL"
