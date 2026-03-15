@@ -33,8 +33,9 @@ resource "aws_codebuild_project" "tanstack_build" {
   }
 
   source {
-    type      = "CODEPIPELINE"
-    buildspec = "buildspec.yml"
+    type                = "CODEPIPELINE"
+    buildspec           = "buildspec.yml"
+    report_build_status = true
   }
 }
 
@@ -78,6 +79,7 @@ resource "aws_codepipeline" "app_pipeline" {
         ConnectionArn    = aws_codestarconnections_connection.github.arn
         FullRepositoryId = "${var.repository_owner}/${var.repository_name}"
         BranchName       = "main" # Default branch
+        DetectChanges    = false
       }
     }
   }
