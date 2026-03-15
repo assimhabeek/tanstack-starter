@@ -77,10 +77,11 @@ resource "aws_codepipeline" "app_pipeline" {
       output_artifacts = ["source_output"]
 
       configuration = {
-        ConnectionArn    = aws_codestarconnections_connection.github.arn
-        FullRepositoryId = "${var.repository_owner}/${var.repository_name}"
-        BranchName       = "main" # Default branch
-        DetectChanges    = false
+        ConnectionArn        = aws_codestarconnections_connection.github.arn
+        FullRepositoryId     = "${var.repository_owner}/${var.repository_name}"
+        BranchName           = "main" # Default branch
+        DetectChanges        = false
+        OutputArtifactFormat = "CODEBUILD_EXECUTABLE_UTILITY" # This enables 'Full Clone'
       }
     }
   }
@@ -147,4 +148,21 @@ resource "aws_iam_role" "codebuild_role" {
 resource "aws_iam_role_policy_attachment" "codebuild_attach" {
   role       = aws_iam_role.codebuild_role.name
   policy_arn = "arn:aws:iam::aws:policy/PowerUserAccess"
+}
+
+
+resource "aws_iam_role_policy" "codebuild_connection_policy" {
+  name = "CodeBuildGitHubStatusAccess"
+  role = aws_iam_role.codebuild_role.id # Use your CodeBuild role name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = "codestar-connections:UseConnection"
+        Resource = aws_codestarconnections_connection.github.arn
+      }
+    ]
+  })
 }
