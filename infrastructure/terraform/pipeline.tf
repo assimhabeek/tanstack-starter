@@ -24,7 +24,6 @@ resource "aws_codebuild_project" "tanstack_build" {
     compute_type                = "BUILD_GENERAL1_SMALL"
     image                       = "aws/codebuild/amazonlinux2-x86_64-standard:5.0"
     type                        = "LINUX_CONTAINER"
-    privileged_mode             = true # Required for Docker builds
     image_pull_credentials_type = "CODEBUILD"
 
     environment_variable {
@@ -151,9 +150,9 @@ resource "aws_iam_role_policy_attachment" "codebuild_attach" {
 }
 
 
-resource "aws_iam_role_policy" "codebuild_connection_policy" {
-  name = "CodeBuildGitHubStatusAccess"
-  role = aws_iam_role.codebuild_role.id # Use your CodeBuild role name
+resource "aws_iam_role_policy" "codebuild_status_reporting" {
+  name = "CodeBuildGitHubStatusReporting"
+  role = aws_iam_role.codebuild_role.id
 
   policy = jsonencode({
     Version = "2012-10-17"
