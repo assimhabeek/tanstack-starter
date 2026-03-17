@@ -54,8 +54,8 @@ resource "aws_iam_role_policy" "codebuild_pr_policy" {
 }
 
 # --- 3. CodeBuild Project ---
-resource "aws_codebuild_project" "pr_check" {
-  name          = "${var.app_name}-pr-check"
+resource "aws_codebuild_project" "codebuild" {
+  name          = "${var.app_name}-codebuild"
   description   = "Automated PR checks for TanStack Starter"
   service_role  = aws_iam_role.codebuild_pr_role.arn
   build_timeout = 10
@@ -77,6 +77,7 @@ resource "aws_codebuild_project" "pr_check" {
     location            = "https://github.com/${var.repository_owner}/${var.repository_name}.git"
     git_clone_depth     = 1
     report_build_status = true # This triggers the checkmark in GitHub
+    buildspec           = "./infrastructure/buildspec.yml"
 
     auth {
       # This links the project to your GitHub App Connection
@@ -84,12 +85,17 @@ resource "aws_codebuild_project" "pr_check" {
       resource = aws_codestarconnections_connection.github.arn
     }
   }
+
+  build_batch_config {
+    service_role    = aws_iam_role.codebuild_pr_role.arn
+    timeout_in_mins = 60
+  }
 }
 
 # --- 4. Automatic Webhook Management ---
 # This resource creates the webhook in your GitHub Repo automatically
 resource "aws_codebuild_webhook" "pr_trigger" {
-  project_name = aws_codebuild_project.pr_check.name
+  project_name = aws_codebuild_project.codebuild.name
   build_type   = "BUILD"
 
   filter_group {

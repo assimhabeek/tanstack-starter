@@ -1,0 +1,9 @@
+batch:
+  fast-fail: false 
+  build-list:
+    - identifier: Lint
+      buildspec: lint.yml
+    - identifier: Test
+      buildspec: test.yml
+    - identifier: Build
+      buildspec: build.yml
