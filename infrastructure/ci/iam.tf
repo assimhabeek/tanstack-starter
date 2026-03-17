@@ -92,3 +92,27 @@ resource "aws_iam_role_policy_attachment" "codebuild_policy" {
 }
 
 
+
+resource "aws_iam_role_policy" "codebuild_cloudwatch" {
+  name = "codebuild-cloudwatch-logs"
+  role = aws_iam_role.codebuild_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource = [
+          aws_codebuild_project.lint.arn,
+          aws_codebuild_project.test.arn,
+          aws_codebuild_project.build.arn
+        ]
+      }
+    ]
+  })
+}
