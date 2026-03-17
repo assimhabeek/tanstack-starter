@@ -105,6 +105,18 @@ resource "aws_codebuild_project" "codebuild" {
   }
 }
 
+resource "null_resource" "codebuild_patch" {
+  provisioner "local-exec" {
+    command = <<EOT
+aws codebuild update-project \
+--name ${aws_codebuild_project.codebuild.name} \
+--build-batch-config serviceRole=${aws_iam_role.codebuild_pr_role.arn},batchReportMode=REPORT_INDIVIDUAL_BUILDS
+EOT
+  }
+
+  depends_on = [aws_codebuild_project.codebuild]
+}
+
 # --- 4. Automatic Webhook Management ---
 # This resource creates the webhook in your GitHub Repo automatically
 resource "aws_codebuild_webhook" "pr_trigger" {

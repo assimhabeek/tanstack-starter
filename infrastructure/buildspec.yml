@@ -4,10 +4,10 @@ batch:
   fast-fail: false 
   build-list:
     - identifier: Lint
-      buildspec: infrastructure/lint.yml
+      buildspec: lint.yml
 
     - identifier: Test
-      buildspec: infrastructure/test.yml
+      buildspec: test.yml
 
     - identifier: Build
-      buildspec: infrastructure/build.yml
+      buildspec: build.yml
