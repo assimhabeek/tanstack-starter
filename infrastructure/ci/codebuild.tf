@@ -54,6 +54,24 @@ resource "aws_codebuild_project" "check" {
   }
 }
 
+resource "null_resource" "batch_report_mode" {
+  triggers = {
+    project_name = aws_codebuild_project.ci.name
+    role_arn     = aws_iam_role.codebuild.arn
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      aws codebuild update-project \
+        --name ${aws_codebuild_project.ci.name} \
+        --build-batch-config '{"serviceRole":"${aws_iam_role.codebuild.arn}","batchReportMode":"REPORT_INDIVIDUAL_BUILDS","timeoutInMins":30,"restrictions":{"maximumBuildsAllowed":10,"computeTypesAllowed":["BUILD_GENERAL1_SMALL"]}}' \
+        --region ${var.aws_region}
+    EOT
+  }
+
+  depends_on = [aws_codebuild_project.ci]
+}
+
 # ── Orchestrator project — runs the batch, references sub-projects ─────────────
 resource "aws_codebuild_project" "ci" {
   name         = "${var.app_name}-ci"
@@ -66,7 +84,7 @@ resource "aws_codebuild_project" "ci" {
     buildspec       = "buildspec.yml"
 
     # No report_build_status here — sub-projects handle their own reporting
-    report_build_status = false
+    report_build_status = true
 
     auth {
       type     = "CODECONNECTIONS"
