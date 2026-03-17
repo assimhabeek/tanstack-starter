@@ -106,17 +106,24 @@ resource "aws_codebuild_project" "codebuild" {
 }
 
 resource "null_resource" "codebuild_patch" {
+  triggers = {
+    # Re-run if the project or role changes
+    project_name = aws_codebuild_project.codebuild.name
+    role_arn     = aws_iam_role.codebuild_pr_role.arn
+    # Optional: Force run on every apply while debugging
+    # force_run   = timestamp() 
+  }
+
   provisioner "local-exec" {
     command = <<EOT
-aws codebuild update-project \
---name ${aws_codebuild_project.codebuild.name} \
---build-batch-config serviceRole=${aws_iam_role.codebuild_pr_role.arn},batchReportMode=REPORT_INDIVIDUAL_BUILDS
-EOT
+      aws codebuild update-project \
+        --name ${self.triggers.project_name} \
+        --build-batch-config "serviceRole=${self.triggers.role_arn},batchReportMode=REPORT_INDIVIDUAL_BUILDS,combineArtifacts=false"
+    EOT
   }
 
   depends_on = [aws_codebuild_project.codebuild]
 }
-
 # --- 4. Automatic Webhook Management ---
 # This resource creates the webhook in your GitHub Repo automatically
 resource "aws_codebuild_webhook" "pr_trigger" {
