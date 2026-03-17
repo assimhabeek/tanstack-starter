@@ -11,7 +11,3 @@ batch:
 
     - identifier: Build
       buildspec: infrastructure/build.yml
-
-# Even if empty, some Batch versions require the phases tag 
-# to acknowledge the 'Standard' container wrapper.
-phases:
