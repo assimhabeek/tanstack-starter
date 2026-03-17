@@ -5,11 +5,11 @@ locals {
       image     = "aws/codebuild/standard:7.0"
     }
     "test" = {
-      buildspec = "ci/test.yml"
+      buildspec = "test.yml"
       image     = "aws/codebuild/standard:7.0"
     }
     "build" = {
-      buildspec = "ci/build.yml"
+      buildspec = "build.yml"
       image     = "aws/codebuild/standard:7.0"
     }
   }
@@ -67,6 +67,11 @@ resource "aws_codebuild_project" "ci" {
 
     # No report_build_status here — sub-projects handle their own reporting
     report_build_status = false
+
+    auth {
+      type     = "CODECONNECTIONS"
+      resource = aws_codestarconnections_connection.github.arn
+    }
 
     git_submodules_config {
       fetch_submodules = false
