@@ -3,11 +3,13 @@ version: 0.2
 batch:
   fast-fail: false
   build-list:
-    - identifier: Lint
-      buildspec: lint.yml
 
-    - identifier: Test
-      buildspec: test.yml
+    - identifier: test
+      # Must match the sub-project name exactly
+      project-name: tanstack-starter/test
 
-    - identifier: Build
-      buildspec: build.yml
+    - identifier: lint
+      project-name: tanstack-starter/lint
+
+    - identifier: build
+      project-name: tanstack-starter/build
