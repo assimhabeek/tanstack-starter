@@ -47,8 +47,20 @@ resource "aws_iam_role_policy" "codepipeline_codestar" {
           aws_codebuild_project.test.arn,
           aws_codebuild_project.build.arn
         ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:GetObjectVersion",
+          "s3:PutObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          "${aws_s3_bucket.artifacts.arn}",  # bucket itself for ListBucket
+          "${aws_s3_bucket.artifacts.arn}/*" # all objects for Get/Put
+        ]
       }
-
     ]
   })
 }
