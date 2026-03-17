@@ -13,6 +13,46 @@ resource "aws_iam_role" "codepipeline_role" {
   })
 }
 
+resource "aws_iam_role_policy" "codepipeline_codestar" {
+  name = "codepipeline-codestar-permissions"
+  role = aws_iam_role.codepipeline_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "codeconnections:UseConnection",
+          "codeconnections:GetConnection",
+          "codeconnections:GetConnectionToken",
+          "codestar-connections:UseConnection",
+          "codestar-connections:GetConnection",
+          "codestar-connections:GetConnectionToken"
+        ]
+        Resource = aws_codestarconnections_connection.github.arn
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "codebuild:StartBuild",
+          "codebuild:StopBuild",
+          "codebuild:RetryBuild",
+          "codebuild:BatchGetBuilds",
+          "codebuild:BatchGetBuildBatches"
+        ]
+        # It needs permission to start builds within its own project
+        Resource = [
+          aws_codebuild_project.lint.arn,
+          aws_codebuild_project.test.arn,
+          aws_codebuild_project.build.arn
+        ]
+      }
+
+    ]
+  })
+}
+
 resource "aws_iam_role_policy_attachment" "codepipeline_policy" {
   role       = aws_iam_role.codepipeline_role.name
   policy_arn = "arn:aws:iam::aws:policy/AWSCodePipeline_FullAccess"
