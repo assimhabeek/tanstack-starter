@@ -77,7 +77,7 @@ resource "aws_codebuild_project" "codebuild" {
     location            = "https://github.com/${var.repository_owner}/${var.repository_name}.git"
     git_clone_depth     = 1
     report_build_status = true # This triggers the checkmark in GitHub
-    buildspec           = "./infrastructure/buildspec.yml"
+    buildspec           = "infrastructure/buildspec.yml"
 
     auth {
       # This links the project to your GitHub App Connection
