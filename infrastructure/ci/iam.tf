@@ -108,9 +108,7 @@ resource "aws_iam_role_policy" "codebuild_cloudwatch" {
           "logs:PutLogEvents"
         ]
         Resource = [
-          aws_codebuild_project.lint.arn,
-          aws_codebuild_project.test.arn,
-          aws_codebuild_project.build.arn
+          "arn:aws:logs:eu-west-3:710803350065:log-group:/aws/codebuild/*"
         ]
       }
     ]
