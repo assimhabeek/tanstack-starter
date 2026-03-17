@@ -6,10 +6,10 @@ batch:
 
     - identifier: test
       # Must match the sub-project name exactly
-      project-name: tanstack-starter/test
+      project-name: tanstack-starter-test
 
     - identifier: lint
-      project-name: tanstack-starter/lint
+      project-name: tanstack-starter-lint
 
     - identifier: build
-      project-name: tanstack-starter/build
+      project-name: tanstack-starter-build
