@@ -1,68 +1,42 @@
-data "aws_iam_policy_document" "codebuild_assume" {
-  statement {
-    actions = ["sts:AssumeRole"]
-    principals {
-      type        = "Service"
-      identifiers = ["codebuild.amazonaws.com"]
-    }
-  }
+resource "aws_iam_role" "codepipeline_role" {
+  name = "codepipeline-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = {
+        Service = "codepipeline.amazonaws.com"
+      }
+      Action = "sts:AssumeRole"
+    }]
+  })
 }
 
-resource "aws_iam_role" "codebuild" {
-  name               = "codebuild-ci-role"
-  assume_role_policy = data.aws_iam_policy_document.codebuild_assume.json
+resource "aws_iam_role_policy_attachment" "codepipeline_policy" {
+  role       = aws_iam_role.codepipeline_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AWSCodePipeline_FullAccess"
 }
 
-data "aws_iam_policy_document" "codebuild_policy" {
-  # Logs
-  statement {
-    actions   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
-    resources = ["*"]
-  }
 
+resource "aws_iam_role" "codebuild_role" {
+  name = "codebuild-role"
 
-  # CodeStar connection (needed to read source from GitHub)
-  statement {
-    actions = [
-      "codeconnections:UseConnection",
-      "codeconnections:GetConnection",
-      "codeconnections:GetConnectionToken",
-      "codestar-connections:UseConnection",
-      "codestar-connections:GetConnection",
-      "codestar-connections:GetConnectionToken"
-    ]
-    resources = [aws_codestarconnections_connection.github.arn]
-  }
-
-  # Added: Required for Reporting individual build statuses/checks
-  statement {
-    actions = [
-      "codebuild:CreateReportGroup",
-      "codebuild:CreateReport",
-      "codebuild:UpdateReport",
-      "codebuild:BatchPutTestCases",
-      "codebuild:BatchPutCodeCoverages"
-    ]
-    resources = ["*"]
-  }
-
-  # Batch build coordination
-  statement {
-    actions = [
-      "codebuild:StartBuild",
-      "codebuild:StopBuild",
-      "codebuild:RetryBuild",
-      "codebuild:BatchGetBuilds",
-      "codebuild:StartBuildBatch",
-      "codebuild:StopBuildBatch",
-      "codebuild:RetryBuildBatch",
-      "codebuild:BatchGetBuildBatches",
-    ]
-    resources = ["*"]
-  }
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = {
+        Service = "codebuild.amazonaws.com"
+      }
+      Action = "sts:AssumeRole"
+    }]
+  })
 }
 
-resource "aws_iam_role_policy" "codebuild" {
-  role   = aws_iam_role.codebuild.name
-  policy = data.aws_iam_policy_document.codebuild_policy.json
+resource "aws_iam_role_policy_attachment" "codebuild_policy" {
+  role       = aws_iam_role.codebuild_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess"
 }
+
+
