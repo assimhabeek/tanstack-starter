@@ -110,7 +110,21 @@ resource "aws_iam_role_policy" "codebuild_cloudwatch" {
         Resource = [
           "arn:aws:logs:eu-west-3:710803350065:log-group:/aws/codebuild/*"
         ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:GetObjectVersion",
+          "s3:PutObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          "${aws_s3_bucket.artifacts.arn}",  # bucket itself for ListBucket
+          "${aws_s3_bucket.artifacts.arn}/*" # all objects for Get/Put
+        ]
       }
+
     ]
   })
 }
