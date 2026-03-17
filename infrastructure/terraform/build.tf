@@ -48,6 +48,18 @@ resource "aws_iam_role_policy" "codebuild_pr_policy" {
           "codestar-connections:GetConnectionToken"
         ]
         Resource = aws_codestarconnections_connection.github.arn
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "codebuild:StartBuild",
+          "codebuild:StopBuild",
+          "codebuild:RetryBuild",
+          "codebuild:BatchGetBuilds",
+          "codebuild:BatchGetBuildBatches"
+        ]
+        # It needs permission to start builds within its own project
+        Resource = aws_codebuild_project.codebuild.arn
       }
     ]
   })
