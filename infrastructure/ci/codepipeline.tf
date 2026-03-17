@@ -35,13 +35,12 @@ resource "aws_codepipeline" "pipeline" {
     name = "Lint"
 
     action {
-      name             = "Lint"
-      category         = "Build"
-      owner            = "AWS"
-      provider         = "CodeBuild"
-      input_artifacts  = ["source_output"]
-      output_artifacts = ["lint_output"]
-      version          = "1"
+      name            = "Lint"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      input_artifacts = ["source_output"]
+      version         = "1"
 
       configuration = {
         ProjectName = aws_codebuild_project.lint.name
@@ -54,13 +53,12 @@ resource "aws_codepipeline" "pipeline" {
     name = "Test"
 
     action {
-      name             = "Test"
-      category         = "Build"
-      owner            = "AWS"
-      provider         = "CodeBuild"
-      input_artifacts  = ["lint_output"]
-      output_artifacts = ["test_output"]
-      version          = "1"
+      name            = "Test"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      input_artifacts = ["source_output"]
+      version         = "1"
 
       configuration = {
         ProjectName = aws_codebuild_project.test.name
@@ -77,7 +75,7 @@ resource "aws_codepipeline" "pipeline" {
       category        = "Build"
       owner           = "AWS"
       provider        = "CodeBuild"
-      input_artifacts = ["test_output"]
+      input_artifacts = ["source_output"]
       version         = "1"
 
       configuration = {
