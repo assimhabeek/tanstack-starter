@@ -15,6 +15,3 @@ batch:
 # Even if empty, some Batch versions require the phases tag 
 # to acknowledge the 'Standard' container wrapper.
 phases:
-  install:
-    commands:
-      - echo "Starting Batch Execution..."
