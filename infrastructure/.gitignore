@@ -5,3 +5,11 @@ terraform/plan
 terraform/*.tfstate
 terraform/terraform.tfstate.backup
 terraform/terraform.tfvars
+
+ci/.terraform
+ci/certs
+.terraform.lock.hcl
+ci/plan
+ci/*.tfstate
+ci/terraform.tfstate.backup
+ci/terraform.tfvars
