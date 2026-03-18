@@ -128,3 +128,18 @@ resource "aws_iam_role_policy" "codebuild_cloudwatch" {
     ]
   })
 }
+
+resource "aws_iam_role_policy" "codebuild_codestar_access" {
+  role = aws_iam_role.codebuild_role.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = "codestar-connections:UseConnection"
+        Resource = aws_codestarconnections_connection.github.arn # The ARN of your GitHub connection
+      }
+    ]
+  })
+}
