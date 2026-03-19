@@ -36,3 +36,29 @@ resource "aws_iam_role" "codebuild_role" {
     ]
   })
 }
+
+
+# --- ADD THIS SECTION ---
+resource "aws_iam_role_policy" "codebuild_logs_policy" {
+  name = "codebuild-logs-policy"
+  role = aws_iam_role.codebuild_role.name
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        # Restricting to the specific log group for this project is best practice
+        Resource = [
+          "arn:aws:logs:*:*:log-group:/aws/codebuild/${var.app_name}-ci",
+          "arn:aws:logs:*:*:log-group:/aws/codebuild/${var.app_name}-ci:*"
+        ]
+      }
+    ]
+  })
+}
