@@ -57,3 +57,37 @@ resource "null_resource" "github_secrets" {
     EOT
   }
 }
+
+# ──────────────────────────────────────────────
+# IAM Policy — CodeBuild permissions
+# ──────────────────────────────────────────────
+data "aws_iam_policy_document" "github_actions_permissions" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "codebuild:StartBuild",
+      "codebuild:BatchGetBuilds",
+      "codebuild:StopBuild", # Added: Helpful if you need to cancel a hung job
+    ]
+    resources = [aws_codebuild_project.ci.arn]
+  }
+
+  # Often required if your CodeBuild project sits inside a VPC
+  # or if the runner needs to check the project configuration.
+  statement {
+    effect    = "Allow"
+    actions   = ["codebuild:ListBuildsForProject"]
+    resources = [aws_codebuild_project.ci.arn]
+  }
+}
+
+resource "aws_iam_policy" "github_actions" {
+  name = "${var.app_name}-github-actions-policy"
+  # FIX: Added .json to convert the data object to a string
+  policy = data.aws_iam_policy_document.github_actions_permissions.json
+}
+
+resource "aws_iam_role_policy_attachment" "github_actions" {
+  role       = aws_iam_role.github_actions.name
+  policy_arn = aws_iam_policy.github_actions.arn
+}
