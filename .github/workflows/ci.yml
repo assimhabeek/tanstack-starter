@@ -1,0 +1,49 @@
+name: Trigger CodeBuild
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  trigger-codebuild:
+    name: Start CodeBuild Project
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Start CodeBuild build
+        run: |
+          BUILD_ID=$(aws codebuild start-build \
+            --project-name ${{ secrets.CODEBUILD_PROJECT_NAME }} \
+            --query 'build.id' \
+            --output text)
+
+          echo "Build started: $BUILD_ID"
+
+          while true; do
+            STATUS=$(aws codebuild batch-get-builds \
+              --ids $BUILD_ID \
+              --query 'builds[0].buildStatus' \
+              --output text)
+
+            echo "Current status: $STATUS"
+
+            if [ "$STATUS" = "SUCCEEDED" ]; then
+              echo "Build succeeded!"
+              exit 0
+            elif [ "$STATUS" = "FAILED" ] || [ "$STATUS" = "FAULT" ] || [ "$STATUS" = "STOPPED" ] || [ "$STATUS" = "TIMED_OUT" ]; then
+              echo "Build failed with status: $STATUS"
+              exit 1
+            fi
+
+            sleep 10
+          done
