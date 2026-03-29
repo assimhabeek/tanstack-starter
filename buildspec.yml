@@ -1,16 +1,28 @@
 version: 0.2
 
-phases:
-  pre_build:
-    commands:
-      # 1. Grab the token using the AWS SDK for JavaScript (v3)
-      - |
-        export GH_TOKEN=$(node -e '
-        import { CodeStarConnectionsClient, GetConnectionTokenCommand } from "@aws-sdk/client-codestar-connections";
-        const client = new CodeStarConnectionsClient({ region: process.env.AWS_REGION });
-        const command = new GetConnectionTokenCommand({ ConnectionArn: process.env.CONNECTION_ARN });
-        client.send(command).then(res => console.log(res.connectionToken));
-        ' --input-type=module)
-
-      # 2. Authenticate the GitHub CLI
-      - echo $GH_TOKEN | gh auth login --with-token
+batch:
+  fast-fail: false
+  build-graph:
+    - identifier: "batch_coordinator"
+      buildspec: |
+        phases:
+          install:
+            commands:
+              # Install only the specific client we need (fast)
+              - npm install @aws-sdk/client-codestar-connections
+          pre_build:
+            commands:
+              - echo "Fetching GitHub Token..."
+              - |
+                export GH_TOKEN=$(node -e '
+                const { CodeStarConnectionsClient, GetConnectionTokenCommand } = require("@aws-sdk/client-codestar-connections");
+                const client = new CodeStarConnectionsClient({ region: process.env.AWS_REGION });
+                const command = new GetConnectionTokenCommand({ ConnectionArn: process.env.CONNECTION_ARN });
+                client.send(command).then(res => console.log(res.connectionToken)).catch(err => { console.error(err); process.exit(1); });
+                ')
+              - echo $GH_TOKEN | gh auth login --with-token
+              - echo "Successfully authenticated with GitHub CLI"
+          build:
+            commands:
+              - echo "Running batch logic..."
+              # Now you can use 'gh api' freely
