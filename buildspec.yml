@@ -3,18 +3,28 @@ version: 0.2
 phases:
   install:
     commands:
-      - echo "Installing dependencies..."
+      # Use a temporary folder for the SDK to avoid cluttering your project
+      - npm install @aws-sdk/client-codestar-connections
   pre_build:
     commands:
-      - echo "Preparing environment..."
+      - echo "Fetching GitHub Token from CodeConnections..."
+      - |
+        export GH_TOKEN=$(node -e '
+        const { CodeStarConnectionsClient, GetConnectionTokenCommand } = require("@aws-sdk/client-codestar-connections");
+        const client = new CodeStarConnectionsClient({ region: process.env.AWS_REGION });
+        const command = new GetConnectionTokenCommand({ ConnectionArn: process.env.CONNECTION_ARN });
+        client.send(command).then(res => console.log(res.connectionToken)).catch(err => { console.error(err); process.exit(1); });
+        ')
+      # Login to GitHub CLI using the retrieved token
+      - echo $GH_TOKEN | gh auth login --with-token
+      - echo "Successfully authenticated with gh CLI"
   build:
     commands:
-      - echo "Hello World! This is the TanStack Starter build."
-      - echo "Current date is `date`"
-  post_build:
-    commands:
-      - echo "Build completed successfully!"
-
-artifacts:
-  files:
-    - '**/*'
+      - echo "Starting Build for tanstack-starter..."
+      - npm run build
+      - |
+        gh api repos/:owner/:repo/check-runs \
+          -f name='🚀 Production Build' \
+          -f head_sha=$CODEBUILD_RESOLVED_SOURCE_VERSION \
+          -f status='completed' \
+          -f conclusion='success'
