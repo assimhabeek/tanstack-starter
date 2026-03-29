@@ -3,10 +3,11 @@ version: 0.2
 phases:
   pre_build:
     commands:
+      - aws --version
       # 1. Fetch the token using the Connection ARN
       - echo "Fetching GitHub token from CodeConnections..."
       - |
-        export GH_TOKEN=$(aws codeconnections get-connection-token \
+        export GH_TOKEN=$(aws codestar-connections get-connection-token \
           --connection-arn $CONNECTION_ARN \
           --query connectionToken \
           --output text)
