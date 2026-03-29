@@ -1,12 +1,22 @@
 version: 0.2
 
 phases:
-  install:
-    runtime-versions:
-      nodejs: 20
+  pre_build:
     commands:
-      - echo "Installing dependencies..."
-
-  build:
-    commands:
-      - echo "Running build..."
+      # 1. Fetch the token using the Connection ARN
+      - echo "Fetching GitHub token from CodeConnections..."
+      - |
+        export GH_TOKEN=$(aws codeconnections get-connection-token \
+          --connection-arn $CONNECTION_ARN \
+          --query connectionToken \
+          --output text)
+      
+      # 2. Authenticate the GitHub CLI
+      - echo $GH_TOKEN | gh auth login --with-token
+      
+      # 3. Create your custom check
+      - |
+        gh api repos/:owner/:repo/check-runs \
+          -f name='🧪 Unit Tests' \
+          -f head_sha=$CODEBUILD_RESOLVED_SOURCE_VERSION \
+          -f status='in_progress'
