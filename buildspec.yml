@@ -1,23 +1,14 @@
-version: 0.2
-
 phases:
   pre_build:
     commands:
-      - aws --version
-      # 1. Fetch the token using the Connection ARN
-      - echo "Fetching GitHub token from CodeConnections..."
+      # 1. Grab the token using the AWS SDK for JavaScript (v3)
       - |
-        export GH_TOKEN=$(aws codestar-connections get-connection-token \
-          --connection-arn $CONNECTION_ARN \
-          --query connectionToken \
-          --output text)
-      
+        export GH_TOKEN=$(node -e '
+        import { CodeStarConnectionsClient, GetConnectionTokenCommand } from "@aws-sdk/client-codestar-connections";
+        const client = new CodeStarConnectionsClient({ region: process.env.AWS_REGION });
+        const command = new GetConnectionTokenCommand({ ConnectionArn: process.env.CONNECTION_ARN });
+        client.send(command).then(res => console.log(res.connectionToken));
+        ' --input-type=module)
+
       # 2. Authenticate the GitHub CLI
       - echo $GH_TOKEN | gh auth login --with-token
-      
-      # 3. Create your custom check
-      - |
-        gh api repos/:owner/:repo/check-runs \
-          -f name='🧪 Unit Tests' \
-          -f head_sha=$CODEBUILD_RESOLVED_SOURCE_VERSION \
-          -f status='in_progress'
