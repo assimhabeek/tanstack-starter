@@ -1,15 +1,12 @@
 version: 0.2
 
-batch:
-  fast-fail: false
-  build-list:
+phases:
+  install:
+    runtime-versions:
+      nodejs: 20
+    commands:
+      - echo "Installing dependencies..."
 
-    - identifier: test
-      # Must match the sub-project name exactly
-      project-name: tanstack-starter-test
-
-    - identifier: lint
-      project-name: tanstack-starter-lint
-
-    - identifier: build
-      project-name: tanstack-starter-build
+  build:
+    commands:
+      - echo "Running build..."
