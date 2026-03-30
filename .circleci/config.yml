@@ -12,25 +12,29 @@ jobs:
 
       # Restore pnpm cache
       - restore_cache:
+          name: Restore pnpm Package Cache
           keys:
-            - v1-pnpm-deps-{{ checksum "pnpm-lock.yaml" }}
-            - v1-pnpm-deps-
+            - pnpm-packages-{{ checksum "pnpm-lock.yaml" }}
 
       # Install pnpm globally
       - run:
-          name: Install pnpm
-          command: npm install -g pnpm
+          name: Install pnpm Package Manager
+          command: |
+            npm install --global corepack@latest
+            corepack enable
+            corepack prepare pnpm@latest-10 --activate
+            pnpm config set store-dir .pnpm-store
 
       # Install project dependencies with pnpm
       - run:
-          name: Install dependencies
+          name: Install Dependencies
           command: pnpm install --frozen-lockfile
 
-      # Save pnpm cache for next builds
       - save_cache:
+          name: Save pnpm Package Cache
+          key: pnpm-packages-{{ checksum "pnpm-lock.yaml" }}
           paths:
-            - ~/.pnpm-store
-          key: v1-pnpm-deps-{{ checksum "pnpm-lock.yaml" }}
+            - .pnpm-store
 
       # Run Linting (Biome)
       - run:
