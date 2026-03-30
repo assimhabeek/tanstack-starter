@@ -44,7 +44,7 @@ jobs:
 workflows:
   quality-gate:
     jobs:
-      - check-code
+      - check-code:
           filters:
             branches:            
               ignore: /.*/  
