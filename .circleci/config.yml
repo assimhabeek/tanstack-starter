@@ -45,3 +45,8 @@ workflows:
   quality-gate:
     jobs:
       - check-code
+          filters:
+            branches:            
+              ignore: /.*/  
+            pull_requests:
+              only: /.*/
