@@ -1,0 +1,37 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+# See: https://circleci.com/docs/reference/configuration-reference
+
+# For a detailed guide to building and testing with Node, read the docs:
+# https://circleci.com/docs/language-javascript/ for more details
+version: 2.1
+
+# Orbs are reusable packages of CircleCI configuration that you may share across projects, enabling you to create encapsulated, parameterized commands, jobs, and executors that can be used across multiple projects.
+# See: https://circleci.com/docs/orbs/use/orb-intro/
+orbs:
+  # See the Node orb documentation here: https://circleci.com/developer/orbs/orb/circleci/node
+  node: circleci/node@5.2
+
+jobs:
+
+  check-code:
+      docker:
+        - image: cimg/node:22.14.0
+      steps:
+
+        - checkout
+
+      # 1. Install pnpm and packages with caching
+        - node/install-packages:
+                pkg-manager: pnpm
+      
+      # 2. Check Linting (Biome)
+        - run:
+            name: Linting Check (Biome)
+            # 'ci' mode is optimized for pipelines
+            command: pnpm biome ci .
+
+
+workflows:
+  quality-gate:
+    jobs:
+      - check-code

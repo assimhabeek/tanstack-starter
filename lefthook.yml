@@ -4,7 +4,12 @@ prepare-commit-msg:
   commands:
     commitzen:
       interactive: true
-      run: pnpm cz --hook # Or npx cz --hook
+      run: |
+        if [ -n "$GIT_REBASE" ]; then
+          echo "Skipping commitzen during rebase"
+          exit 0
+        fi
+        pnpm cz --hook
       env:
         LEFTHOOK: 0
 
