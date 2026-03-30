@@ -3,6 +3,12 @@
   "root": false,
   "extends": "//",
   "files": {
-    "includes": ["**", "!.output", ".pnpm-store", "!src/components/ui", "!**/src/routeTree.gen.ts"]
+    "includes": [
+      "**",
+      "!.output/",
+      "!.pnpm-store/",
+      "!src/components/ui",
+      "!**/src/routeTree.gen.ts"
+    ]
   }
 }
