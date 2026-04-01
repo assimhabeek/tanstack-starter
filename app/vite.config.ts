@@ -10,8 +10,25 @@ import viteTsConfigPaths from 'vite-tsconfig-paths'
 
 const config = defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
+  const isTest = process.env.VITEST === 'true'
+
+  const devEnvPlugin = isTest
+    ? []
+    : [
+        devtools(),
+        nitro(),
+        sentryTanstackStart({
+          telemetry: false,
+          org: env.SENTRY_ORG,
+          project: env.SENTRY_PROJECT,
+          authToken: env.SENTRY_AUTH_TOKEN
+        })
+      ]
 
   return {
+    test: {
+      passWithNoTests: true
+    },
     build: {
       sourcemap: true
     },
@@ -21,20 +38,13 @@ const config = defineConfig(({ mode }) => {
       }
     },
     plugins: [
-      devtools(),
-      // this is the plugin that enables path aliases
+      tailwindcss(),
+      tanstackStart(),
+      viteReact(),
       viteTsConfigPaths({
         projects: ['./tsconfig.json']
       }),
-      tailwindcss(),
-      tanstackStart(),
-      nitro(),
-      viteReact(),
-      sentryTanstackStart({
-        org: env.SENTRY_ORG,
-        project: env.SENTRY_PROJECT,
-        authToken: env.SENTRY_AUTH_TOKEN
-      })
+      ...devEnvPlugin
     ]
   }
 })

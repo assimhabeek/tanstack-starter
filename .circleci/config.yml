@@ -4,44 +4,67 @@ orbs:
   node: circleci/node@5.2
 
 jobs:
-  check-code:
+  # 1. Setup Job: Install once, share everywhere
+  setup:
     docker:
       - image: cimg/node:22.14.0
     steps:
       - checkout
-
-      # Restore pnpm cache
-      - restore_cache:
-          name: Restore pnpm Package Cache
-          keys:
-            - pnpm-packages-{{ checksum "pnpm-lock.yaml" }}
-
-      # Install pnpm globally
       - run:
-          name: Install pnpm Package Manager
+          name: Setup pnpm
           command: |
-            npm install --global corepack@latest
             corepack enable
             corepack prepare pnpm@latest-10 --activate
             pnpm config set store-dir .pnpm-store
-
-      # Install project dependencies with pnpm
-      - run:
-          name: Install Dependencies
-          command: pnpm install --frozen-lockfile
-
-      - save_cache:
-          name: Save pnpm Package Cache
-          key: pnpm-packages-{{ checksum "pnpm-lock.yaml" }}
+      - node/install-packages:
+          pkg-manager: pnpm
+      # PERSIST: This saves the code + node_modules for other jobs
+      - persist_to_workspace:
+          root: .
           paths:
-            - .pnpm-store
+            - .
 
-      # Run Linting (Biome)
+  # 2. Separate Check Jobs
+  lint:
+    docker:
+      - image: cimg/node:22.14.0
+    steps:
+      - attach_workspace:
+          at: .
+      - run: pnpm biome ci .
+
+  test:
+    docker:
+      - image: cimg/node:22.14.0
+    steps:
+      - attach_workspace:
+          at: .
       - run:
-          name: Linting Check (Biome)
-          command: pnpm biome ci .
+          name: Test App
+          working_directory: app
+          command: pnpm test
 
+  typecheck:
+    docker:
+      - image: cimg/node:22.14.0
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Typecheck App
+          working_directory: app
+          command: pnpm tsc --noEmit
+          
 workflows:
   quality-gate:
     jobs:
-      - check-code
+      - setup
+      - lint:
+          requires:
+            - setup
+      - test:
+          requires:
+            - setup
+      - typecheck:
+          requires:
+            - setup
