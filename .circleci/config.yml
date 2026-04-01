@@ -43,6 +43,5 @@ jobs:
 
 workflows:
   quality-gate:
-    when: pipeline.event.name == "pull_request" and pipeline.event.action == "opened"
     jobs:
       - check-code
