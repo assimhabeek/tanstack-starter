@@ -29,5 +29,8 @@
     "parser": {
       "tailwindDirectives": true
     }
+  },
+  "files": {
+    "includes": ["**", "!.pnpm-store"]
   }
 }

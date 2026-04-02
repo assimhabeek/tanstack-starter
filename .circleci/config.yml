@@ -1,0 +1,103 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@5.2
+
+# -----------------------------
+# Reusable commands
+# -----------------------------
+commands:
+  setup-pnpm:
+    description: "Install and configure pnpm"
+    steps:
+      - run:
+          name: Install pnpm Package Manager
+          command: |
+            npm install --global corepack@latest
+            corepack enable
+            corepack prepare pnpm@latest-10 --activate
+            pnpm config set store-dir .pnpm-store
+
+  install-deps:
+    description: "Restore pnpm cache, install dependencies, and save cache"
+    steps:
+      - restore_cache:
+          keys:
+            - pnpm-packages-{{ checksum "pnpm-lock.yaml" }}
+            - pnpm-packages-
+      - setup-pnpm
+      - run:
+          name: Install Dependencies
+          command: pnpm install --frozen-lockfile --prefer-offline
+      - save_cache:
+          key: pnpm-packages-{{ checksum "pnpm-lock.yaml" }}
+          paths:
+            - .pnpm-store
+
+# -----------------------------
+# Jobs
+# -----------------------------
+jobs:
+  # 1️⃣ Setup job — install dependencies once
+  setup:
+    docker:
+      - image: cimg/node:22.14.0
+    steps:
+      - checkout
+      - install-deps
+
+  # 2️⃣ Lint job
+  lint:
+    docker:
+      - image: cimg/node:22.14.0
+    steps:
+      - checkout
+      - install-deps
+      - run: pnpm biome ci .
+
+  # 3️⃣ Test job
+  test:
+    docker:
+      - image: cimg/node:22.14.0
+    steps:
+      - checkout
+      - install-deps
+      - run:
+          name: Test App
+          working_directory: app
+          command: pnpm test
+
+  # 4️⃣ Typecheck job
+  typecheck:
+    docker:
+      - image: cimg/node:22.14.0
+    steps:
+      - checkout
+      - install-deps
+      - run:
+          name: Typecheck App
+          working_directory: app
+          command: pnpm tsc --noEmit
+
+  # 5️⃣ Build job
+  build:
+    docker:
+      - image: cimg/node:22.14.0
+    steps:
+      - checkout
+      - install-deps
+      - run:
+          name: Build App
+          working_directory: app
+          command: pnpm build
+
+# -----------------------------
+# Workflows
+# -----------------------------
+workflows:
+  quality-gate:
+    jobs:
+      - lint
+      - test
+      - typecheck
+      - build
