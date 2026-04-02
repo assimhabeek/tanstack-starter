@@ -3,10 +3,8 @@
 prepare-commit-msg:
   commands:
     commitzen:
-      run: |
-        if [ ! -d ".git/rebase-apply" ] && [ ! -d ".git/rebase-merge" ]; then
-          pnpm cz --hook
-        fi
+      interactive: true
+      run: pnpm cz --hook
 
 # Validate commit messages
 commit-msg:
