@@ -4,8 +4,14 @@ prepare-commit-msg:
   commands:
     commitzen:
       interactive: true
-      run: pnpm cz --hook
-
+      run: |
+        if [ -d ".git/rebase-merge" ] || [ -d ".git/rebase-apply" ]; then
+          exit 0
+        fi
+        pnpm cz --hook
+      env:
+        LEFTHOOK: 0
+        
 # Validate commit messages
 commit-msg:
   commands:
