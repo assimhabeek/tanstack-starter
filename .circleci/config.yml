@@ -3,21 +3,13 @@ version: 2.1
 orbs:
   node: circleci/node@5.2
 
-jobs:
-  # 1. Setup Job: Install once, share everywhere
-  setup:
-    docker:
-      - image: cimg/node:22.14.0
+# -----------------------------
+# Reusable commands
+# -----------------------------
+commands:
+  setup-pnpm:
+    description: "Install and configure pnpm"
     steps:
-      - checkout
-
-      # Restore pnpm cache
-      - restore_cache:
-          name: Restore pnpm Package Cache
-          keys:
-            - pnpm-packages-{{ checksum "pnpm-lock.yaml" }}
-
-      # Install pnpm globally
       - run:
           name: Install pnpm Package Manager
           command: |
@@ -26,58 +18,76 @@ jobs:
             corepack prepare pnpm@latest-10 --activate
             pnpm config set store-dir .pnpm-store
 
-      # Install project dependencies with pnpm
+  install-deps:
+    description: "Restore pnpm cache, install dependencies, and save cache"
+    steps:
+      - restore_cache:
+          keys:
+            - pnpm-packages-{{ checksum "pnpm-lock.yaml" }}
+            - pnpm-packages-
+      - setup-pnpm
       - run:
           name: Install Dependencies
-          command: pnpm install --frozen-lockfile
-
+          command: pnpm install --frozen-lockfile --prefer-offline
       - save_cache:
-          name: Save pnpm Package Cache
           key: pnpm-packages-{{ checksum "pnpm-lock.yaml" }}
           paths:
             - .pnpm-store
-          
-      # PERSIST: This saves the code + node_modules for other jobs
-      - persist_to_workspace:
-          root: .
-          paths:
-            - .
 
-  # 2. Separate Check Jobs
+# -----------------------------
+# Jobs
+# -----------------------------
+jobs:
+  # 1️⃣ Setup job — install dependencies once
+  setup:
+    docker:
+      - image: cimg/node:22.14.0
+    steps:
+      - checkout
+      - install-deps
+
+  # 2️⃣ Lint job
   lint:
     docker:
       - image: cimg/node:22.14.0
     steps:
-      - attach_workspace:
-          at: .
+      - checkout
+      - install-deps
       - run: pnpm biome ci .
 
+  # 3️⃣ Test job
   test:
     docker:
       - image: cimg/node:22.14.0
     steps:
-      - attach_workspace:
-          at: .
+      - checkout
+      - install-deps
       - run:
           name: Test App
           working_directory: app
           command: pnpm test
 
+  # 4️⃣ Typecheck job
   typecheck:
     docker:
       - image: cimg/node:22.14.0
     steps:
-      - attach_workspace:
-          at: .
+      - checkout
+      - install-deps
       - run:
           name: Typecheck App
           working_directory: app
           command: pnpm tsc --noEmit
-          
+
+# -----------------------------
+# Workflows
+# -----------------------------
 workflows:
   quality-gate:
     jobs:
+      # Setup job runs first
       - setup
+      # All other jobs depend on setup
       - lint:
           requires:
             - setup
