@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   node: circleci/node@5.2
+  aws-ecr: circleci/aws-ecr@9.3.0
 
 # -----------------------------
 # Reusable commands
@@ -78,34 +79,12 @@ jobs:
           name: Build App
           working_directory: app
           command: pnpm build
-
-  # 🚀 New: Build Docker and push to ECR
-  deploy-docker:
-    machine:
-      image: ubuntu-2204:current
-    steps:
-      - checkout
-      - run:
-          name: Build and Push to ECR
-          command: |
-            # Variables matching your script
-            ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-            ECR_URL="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${APP_NAME}"
-            COMMIT_HASH=${CIRCLE_SHA1}
-
-            echo "🔐 Logging into ECR..."
-            aws ecr get-login-password --AWS_REGION $AWS_REGION | docker login --username AWS --password-stdin $ECR_URL
-
-            echo "🏗️ Building Docker image..."
-            docker build -t $APP_NAME .
-
-            echo "🏷️ Tagging image with latest and commit hash..."
-            docker tag $APP_NAME:latest $ECR_URL:latest
-            docker tag $APP_NAME:latest $ECR_URL:$COMMIT_HASH
-
-            echo "🚀 Pushing to ECR..."
-            docker push $ECR_URL:latest
-            docker push $ECR_URL:$COMMIT_HASH
+      # 💾 Persist the .output folder so Docker can use it
+      - persist_to_workspace:
+          root: .
+          paths:
+            - app/.output
+            - Dockerfile  # <--- Crucial: Add this!
 
   # 🌍 New: Terraform Apply
   deploy-infra:
@@ -133,17 +112,27 @@ workflows:
       - typecheck
       - build
 
-      # Only runs on 'main' and only if all the above pass
-      - deploy-docker:
-          context: aws-credentials # ⚠️ Set this context in CircleCI for AWS keys
+      - aws-ecr/build_and_push_image:
+          name: deploy-docker
+          checkout: false  # <--- This skips the git clone
+          context: aws-credentials
+          account_id: AWS_ACCOUNT_ID     # Pulled from Context
+          region: AWS_REGION             # Pulled from Context
+          repo: tanstack-starter         # Your ECR Repo Name
+          tag: "latest,${CIRCLE_SHA1}"   # Tags with both for easy tracking
+          dockerfile: Dockerfile
+          path: .                        # Root where Dockerfile lives
+          # 📂 Attach the workspace so the Dockerfile can COPY .output
+          attach_workspace: true
+          workspace_root: . 
           requires:
             - lint
             - test
             - typecheck
             - build
-          filters:
-            branches:
-              only: main
+          # filters:
+          #   branches:
+          #     only: main
 
       # Only runs after the Docker image is successfully pushed
       - deploy-infra:
