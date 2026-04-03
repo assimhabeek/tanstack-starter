@@ -117,7 +117,6 @@ workflows:
           auth:
             - aws-cli/setup:
                 region: ${AWS_REGION}
-                context: aws-credentials
           name: deploy-docker
           checkout: false                # Skips the git clone
           region: ${AWS_REGION}         
