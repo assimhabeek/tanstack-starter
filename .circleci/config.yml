@@ -113,9 +113,11 @@ workflows:
       - build
 
       - aws-ecr/build_and_push_image:
+          context: aws-credentials
           auth:
             - aws-cli/setup:
                 region: ${AWS_REGION}
+                context: aws-credentials
           name: deploy-docker
           checkout: false                # Skips the git clone
           region: ${AWS_REGION}         
