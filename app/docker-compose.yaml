@@ -1,14 +1,14 @@
 version: "3.9"
 
-name: tanstack-starter
+name: zeroDay-kit
 services:
   postgres:
     image: postgres:18.1
-    container_name: tanstack-starter-postgres
+    container_name: zeroDay-kit-postgres
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: tanstack-starter
+      POSTGRES_DB: zeroDay-kit
     ports:
       - "5432:5432"

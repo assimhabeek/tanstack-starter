@@ -63,7 +63,7 @@ resource "aws_ecs_task_definition" "app" {
   container_definitions = jsonencode([
     {
       name      = "${var.app_name}"
-      image     = "${aws_ecr_repository.app.repository_url}:latest"
+      image     = "${aws_ecr_repository.app.repository_url}:${var.container_image_tag}"
       essential = true
       portMappings = [
         {
@@ -128,10 +128,10 @@ resource "aws_ecs_service" "main" {
   # It forces a redeployment even if the Task Definition hasn't changed.
   force_new_deployment = true
 
-  triggers = {
+  # triggers = {
     # Using a timestamp ensures this value is different every time you run 'apply'
-    redeployment = plantimestamp()
-  }
+    # redeployment = plantimestamp()
+  # }
 
   network_configuration {
     security_groups  = [aws_security_group.ecs_tasks.id]
