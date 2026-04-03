@@ -94,7 +94,6 @@ jobs:
       - attach_workspace:
           at: .
       - aws-ecr/build_and_push_image:
-          context: aws-credentials
           auth:
             - aws-cli/setup:
                 region: ${AWS_REGION}
@@ -152,7 +151,7 @@ jobs:
 # Workflows
 # -----------------------------
 workflows:
-  ci-and-deploy:
+  ci-cd:
     jobs:
       # Parallel CI jobs
       - lint
