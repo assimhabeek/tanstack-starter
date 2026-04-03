@@ -121,6 +121,7 @@ workflows:
           checkout: false                # Skips the git clone
           region: ${AWS_REGION}         
           repo: ${APP_NAME}              # ECR Repo Name
+          create-repo: true
           tag: "latest,${CIRCLE_SHA1}"   # Tags with both for easy tracking
           dockerfile: Dockerfile
           path: .                        # Root where Dockerfile lives

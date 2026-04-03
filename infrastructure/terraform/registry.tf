@@ -1,3 +1,8 @@
+import {
+  to = aws_ecr_repository.app
+  id = var.app_name
+}
+
 # 1. Create the Private Repository
 resource "aws_ecr_repository" "app" {
   name                 = var.app_name
