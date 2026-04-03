@@ -140,12 +140,12 @@ jobs:
       - attach_workspace:
           at: .
       - terraform/plan:
-          path: infrastructure/terraform
           destroy_plan: true
-          out: destroy.tfplan
+          path: infrastructure/terraform
+      - hold:
+          type: approval  # Manual approval before actual destroy
       - terraform/destroy:
           path: infrastructure/terraform
-          plan: infrastructure/terraform/destroy.tfplan
 
 # -----------------------------
 # Workflows
