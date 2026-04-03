@@ -125,24 +125,25 @@ workflows:
           #   branches:
           #     only: main
 
-      # 1. Static Analysis & Linting
-      - terraform/validate:
-          path: ./infrastructure/terraform
+      # 1. Formatting
+      - terraform/fmt:
           checkout: true
-          persist_to_workspace: true # Saves the .terraform folder (providers/modules)
-          workspace_root: .
           requires:
             - aws-ecr/build_and_push_image
+
+      # 2. Validation
+      - terraform/validate:
+          path: ./infrastructure/terraform
+          requires:
+            - terraform/fmt
       
-      # 2. Plan (Generates the execution plan in HCP Terraform)
+      # 3. Plan (Generates the execution plan in HCP Terraform)
       - terraform/plan:
           path: ./infrastructure/terraform
-          attach_workspace: true
-          workspace_root: .
           requires:
             - terraform/validate
 
-      # 3. Manual Gate
+      # 4. Manual Gate
       - hold:
           type: approval
           requires:
@@ -151,19 +152,16 @@ workflows:
           #   branches:
           #     only: main
 
-      # 4. Apply (Executes the plan in HCP Terraform)
+      # 5. Apply (Executes the plan in HCP Terraform)
       - terraform/apply:
           path: ./infrastructure/terraform
-          attach_workspace: true
-          workspace_root: .
           requires:
             - hold
           # filters:
           #   branches:
           #     only: main
 
-      # 5. Safety Gate for Destruction
-      # This will pause the workflow and wait for you to click "Approve" in CircleCI
+      # 6. Safety Gate for Destruction
       - hold-destroy:
           type: approval
           requires:
@@ -172,11 +170,9 @@ workflows:
           #   branches:
           #     only: main
 
-      # 6. Destroy (Executes the destruction in HCP Terraform)
+      # 7. Destroy (Executes the destruction in HCP Terraform)
       - terraform/destroy:
           path: ./infrastructure/terraform
-          attach_workspace: true
-          workspace_root: .
           requires:
             - hold-destroy
           # filters:
