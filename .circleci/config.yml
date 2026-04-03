@@ -87,26 +87,6 @@ jobs:
             - app/.output
             - Dockerfile
 
-  dockerize:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - attach_workspace:
-          at: .
-      - aws-ecr/build_and_push_image:
-          auth:
-            - aws-cli/setup:
-                region: ${AWS_REGION}
-          checkout: false
-          region: ${AWS_REGION}
-          repo: ${APP_NAME}
-          create_repo: true 
-          tag: "latest,${CIRCLE_SHA1}"
-          dockerfile: Dockerfile
-          path: .
-          attach_workspace: true
-          workspace_root: .
-
   terraform-plan:
     executor: terraform/default
     steps:
@@ -154,7 +134,20 @@ workflows:
       - build
 
       # Build and push Docker image
-      - dockerize:
+      - aws-ecr/build_and_push_image:
+          name: dockerize
+          auth:
+            - aws-cli/setup:
+                region: ${AWS_REGION}
+          checkout: false
+          region: ${AWS_REGION}
+          repo: ${APP_NAME}
+          create_repo: true 
+          tag: "latest,${CIRCLE_SHA1}"
+          dockerfile: Dockerfile
+          path: .
+          attach_workspace: true
+          workspace_root: .
           context: aws-credentials
           requires:
             - lint
