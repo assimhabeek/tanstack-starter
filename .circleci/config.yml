@@ -4,6 +4,8 @@ orbs:
   node: circleci/node@5.2
   aws-ecr: circleci/aws-ecr@9.8.1 
   aws-cli: circleci/aws-cli@5.4.1
+  terraform: circleci/terraform@3.5
+
 # -----------------------------
 # Reusable commands
 # -----------------------------
@@ -86,20 +88,6 @@ jobs:
             - app/.output
             - Dockerfile  # <--- Crucial: Add this!
 
-  # 🌍 New: Terraform Apply
-  deploy-infra:
-    docker:
-      - image: hashicorp/terraform:latest
-    steps:
-      - checkout
-      - run:
-          name: Terraform Apply
-          command: |
-            # Navigate to your terraform folder if applicable
-            # cd infrastructure/terraform 
-            terraform init
-            terraform apply -var="container_image_tag=${CIRCLE_SHA1}" -auto-approve
-
 # -----------------------------
 # Workflows
 # -----------------------------
@@ -137,11 +125,60 @@ workflows:
           #   branches:
           #     only: main
 
-      # Only runs after the Docker image is successfully pushed
-      - deploy-infra:
-          context: aws-credentials
+      # 1. Static Analysis & Linting
+      - terraform/validate:
+          path: ./infrastructure/terraform
+          checkout: true
+          persist_to_workspace: true # Saves the .terraform folder (providers/modules)
+          workspace_root: .
           requires:
-            - deploy-docker
-          filters:
-            branches:
-              only: main
+            - aws-ecr/build_and_push_image
+      
+      # 2. Plan (Generates the execution plan in HCP Terraform)
+      - terraform/plan:
+          path: ./infrastructure/terraform
+          attach_workspace: true
+          workspace_root: .
+          requires:
+            - terraform/validate
+
+      # 3. Manual Gate
+      - hold:
+          type: approval
+          requires:
+            - terraform/plan
+          # filters:
+          #   branches:
+          #     only: main
+
+      # 4. Apply (Executes the plan in HCP Terraform)
+      - terraform/apply:
+          path: ./infrastructure/terraform
+          attach_workspace: true
+          workspace_root: .
+          requires:
+            - hold
+          # filters:
+          #   branches:
+          #     only: main
+
+      # 5. Safety Gate for Destruction
+      # This will pause the workflow and wait for you to click "Approve" in CircleCI
+      - hold-destroy:
+          type: approval
+          requires:
+            - terraform/apply
+          # filters:
+          #   branches:
+          #     only: main
+
+      # 6. Destroy (Executes the destruction in HCP Terraform)
+      - terraform/destroy:
+          path: ./infrastructure/terraform
+          attach_workspace: true
+          workspace_root: .
+          requires:
+            - hold-destroy
+          # filters:
+          #   branches:
+          #     only: main
