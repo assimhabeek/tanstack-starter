@@ -105,7 +105,6 @@ workflows:
           auth:
             - aws-cli/setup:
                 region: ${AWS_REGION}
-          name: deploy-docker
           checkout: false                # Skips the git clone
           region: ${AWS_REGION}         
           repo: ${APP_NAME}              # ECR Repo Name
