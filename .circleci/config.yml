@@ -94,7 +94,6 @@ jobs:
       - attach_workspace:
           at: .
       - aws-ecr/build_and_push_image:
-          context: aws-credentials
           auth:
             - aws-cli/setup:
                 region: ${AWS_REGION}
@@ -156,6 +155,7 @@ workflows:
 
       # Build and push Docker image
       - dockerize:
+          context: aws-credentials
           requires:
             - lint
             - test
