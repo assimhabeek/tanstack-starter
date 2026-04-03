@@ -94,13 +94,14 @@ jobs:
       - attach_workspace:
           at: .
       - aws-ecr/build_and_push_image:
+          context: aws-credentials
           auth:
             - aws-cli/setup:
                 region: ${AWS_REGION}
           checkout: false
           region: ${AWS_REGION}
           repo: ${APP_NAME}
-          create_repo: true
+          create_repo: true 
           tag: "latest,${CIRCLE_SHA1}"
           dockerfile: Dockerfile
           path: .
