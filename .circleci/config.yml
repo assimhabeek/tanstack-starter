@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   node: circleci/node@5.2
-  aws-ecr: circleci/aws-ecr@9.8.1 
+  aws-ecr: circleci/aws-ecr@9.8.1
   aws-cli: circleci/aws-cli@5.4.1
   terraform: circleci/terraform@3.5
 
@@ -81,99 +81,114 @@ jobs:
           name: Build App
           working_directory: app
           command: pnpm build
-      # 💾 Persist the .output folder so Docker can use it
       - persist_to_workspace:
           root: .
           paths:
             - app/.output
-            - Dockerfile  # <--- Crucial: Add this!
+            - Dockerfile
 
-# -----------------------------
-# Workflows
-# -----------------------------
-workflows:
-  quality-gate-and-deploy:
-    jobs:
-      # These 4 run in parallel on every push
-      - lint
-      - test
-      - typecheck
-      - build
-
+  dockerize:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - attach_workspace:
+          at: .
       - aws-ecr/build_and_push_image:
           context: aws-credentials
           auth:
             - aws-cli/setup:
                 region: ${AWS_REGION}
-          checkout: false                # Skips the git clone
-          region: ${AWS_REGION}         
-          repo: ${APP_NAME}              # ECR Repo Name
+          checkout: false
+          region: ${AWS_REGION}
+          repo: ${APP_NAME}
           create_repo: true
-          tag: "latest,${CIRCLE_SHA1}"   # Tags with both for easy tracking
+          tag: "latest,${CIRCLE_SHA1}"
           dockerfile: Dockerfile
-          path: .                        # Root where Dockerfile lives
-          # 📂 Attach the workspace so the Dockerfile can COPY .output
+          path: .
           attach_workspace: true
-          workspace_root: . 
+          workspace_root: .
+
+  terraform-plan:
+    executor: terraform/default
+    steps:
+      - checkout
+      - terraform/init:
+          path: infrastructure/terraform
+      - terraform/validate:
+          path: infrastructure/terraform
+      - terraform/fmt:
+          path: infrastructure/terraform
+      - terraform/plan:
+          path: infrastructure/terraform
+          out: plan.tfplan
+      - persist_to_workspace:
+          root: .
+          paths:
+            - infrastructure/terraform/plan.tfplan
+
+  terraform-apply:
+    executor: terraform/default
+    steps:
+      - attach_workspace:
+          at: .
+      - terraform/apply:
+          path: infrastructure/terraform
+          plan: infrastructure/terraform/plan.tfplan
+
+  terraform-destroy:
+    executor: terraform/default
+    steps:
+      - attach_workspace:
+          at: .
+      - terraform/plan:
+          path: infrastructure/terraform
+          destroy_plan: true
+          out: destroy.tfplan
+      - terraform/destroy:
+          path: infrastructure/terraform
+          plan: infrastructure/terraform/destroy.tfplan
+
+# -----------------------------
+# Workflows
+# -----------------------------
+workflows:
+  ci-and-deploy:
+    jobs:
+      # Parallel CI jobs
+      - lint
+      - test
+      - typecheck
+      - build
+
+      # Build and push Docker image
+      - dockerize:
           requires:
             - lint
             - test
             - typecheck
             - build
-          # filters:
-          #   branches:
-          #     only: main
 
-      # 1. Formatting
-      - terraform/fmt:
-          checkout: true
+      # Terraform plan
+      - terraform-plan:
           requires:
-            - aws-ecr/build_and_push_image
+            - dockerize
 
-      # 2. Validation
-      - terraform/validate:
-          path: ./infrastructure/terraform
-          requires:
-            - terraform/fmt
-      
-      # 3. Plan (Generates the execution plan in HCP Terraform)
-      - terraform/plan:
-          path: ./infrastructure/terraform
-          requires:
-            - terraform/validate
-
-      # 4. Manual Gate
+      # Manual approval before apply
       - hold:
           type: approval
           requires:
-            - terraform/plan
-          # filters:
-          #   branches:
-          #     only: main
+            - terraform-plan
 
-      # 5. Apply (Executes the plan in HCP Terraform)
-      - terraform/apply:
-          path: ./infrastructure/terraform
+      # Terraform apply
+      - terraform-apply:
           requires:
             - hold
-          # filters:
-          #   branches:
-          #     only: main
 
-      # 6. Safety Gate for Destruction
+      # Terraform destroy (manual)
       - hold-destroy:
           type: approval
           requires:
-            - terraform/apply
-          # filters:
-          #   branches:
-          #     only: main
-
-      # 7. Destroy (Executes the destruction in HCP Terraform)
-      - terraform/destroy:
-          path: ./infrastructure/terraform
+            - terraform-apply
+      - terraform-destroy:
           requires:
             - hold-destroy
-          # filters:
-          #   branches:
-          #     only: main
