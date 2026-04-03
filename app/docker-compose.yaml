@@ -1,14 +1,14 @@
 version: "3.9"
 
-name: zeroDay-kit
+name: zeroday-kit
 services:
   postgres:
     image: postgres:18.1
-    container_name: zeroDay-kit-postgres
+    container_name: zeroday-kit-postgres
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: zeroDay-kit
+      POSTGRES_DB: zeroday-kit
     ports:
       - "5432:5432"

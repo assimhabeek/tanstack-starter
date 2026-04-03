@@ -1,7 +1,7 @@
 variable "app_name" {
   description = "The name of the application used for tagging and resource naming"
   type        = string
-  default     = "zeroDay-kit"
+  default     = "zeroday-kit"
 }
 
 variable "repository_owner" {
@@ -13,7 +13,7 @@ variable "repository_owner" {
 variable "repository_name" {
   description = "The name of the GitHub repository"
   type        = string
-  default     = "zeroDay-kit"
+  default     = "zeroday-kit"
 }
 
 variable "aws_region" {
