@@ -1,5 +1,9 @@
 terraform {
-  cloud {}
+  cloud {
+    workspaces {
+      tags = ["automation"] # 👈 This "satisfies" the mapping strategy requirement
+    }
+  }
   required_providers {
     aws = {
       source  = "hashicorp/aws"
