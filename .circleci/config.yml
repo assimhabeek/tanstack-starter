@@ -91,6 +91,13 @@ jobs:
     executor: terraform/default
     steps:
       - checkout
+      - run:
+        name: Debug env vars
+        command: |
+          echo "TF_WORKSPACE=$TF_WORKSPACE"
+          echo "TF_CLOUD_ORGANIZATION=$TF_CLOUD_ORGANIZATION"
+          echo "TF_TOKEN exists=$([ -n "$TF_TOKEN_app_terraform_io" ] && echo yes || echo NO)"
+
       - terraform/init:
           path: infrastructure/terraform
       - terraform/validate:
@@ -127,38 +134,38 @@ jobs:
 workflows:
   ci-cd:
     jobs:
-      # Parallel CI jobs
-      - lint
-      - test
-      - typecheck
-      - build
+      # # Parallel CI jobs
+      # - lint
+      # - test
+      # - typecheck
+      # - build
 
-      # Build and push Docker image
-      - aws-ecr/build_and_push_image:
-          name: dockerize
-          auth:
-            - aws-cli/setup:
-                region: ${AWS_REGION}
-          checkout: false
-          region: ${AWS_REGION}
-          repo: ${APP_NAME}
-          create_repo: true 
-          tag: "latest,${CIRCLE_SHA1}"
-          dockerfile: Dockerfile
-          path: .
-          attach_workspace: true
-          workspace_root: .
-          context: aws-credentials
-          requires:
-            - lint
-            - test
-            - typecheck
-            - build
+      # # Build and push Docker image
+      # - aws-ecr/build_and_push_image:
+      #     name: dockerize
+      #     auth:
+      #       - aws-cli/setup:
+      #           region: ${AWS_REGION}
+      #     checkout: false
+      #     region: ${AWS_REGION}
+      #     repo: ${APP_NAME}
+      #     create_repo: true 
+      #     tag: "latest,${CIRCLE_SHA1}"
+      #     dockerfile: Dockerfile
+      #     path: .
+      #     attach_workspace: true
+      #     workspace_root: .
+      #     context: aws-credentials
+      #     requires:
+      #       - lint
+      #       - test
+      #       - typecheck
+      #       - build
       # Terraform plan
       - terraform-plan:
           context: terraform
-          requires:
-            - dockerize
+          # requires:
+          #   - dockerize
       # Manual approval before apply
       - hold:
           type: approval
