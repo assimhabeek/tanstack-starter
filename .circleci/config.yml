@@ -142,6 +142,10 @@ workflows:
           tag: 1.14.8 # terraform version 
           persist-workspace: true
           path: ./infrastructure/terraform
+          pre-steps:
+            - run: 
+                name: Inject SHA
+                command: echo 'export TF_VAR_sha=${CIRCLE_SHA1}' >> $BASH_ENV
           context:
             - terraform
             - aws-credentials
