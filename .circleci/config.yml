@@ -124,16 +124,19 @@ workflows:
       - terraform/fmt:
           checkout: true
           context: terraform
+          tag: 1.14.8 # terraform version 
           path: ./infrastructure/terraform
       - terraform/validate:
           checkout: true
           context: terraform
+          tag: 1.14.8 # terraform version 
           path: ./infrastructure/terraform
           requires:
             - terraform/fmt
       - terraform/plan:
           checkout: true
           context: terraform
+          tag: 1.14.8 # terraform version 
           persist-workspace: true
           path: ./infrastructure/terraform
           requires:
@@ -147,6 +150,7 @@ workflows:
 
       - terraform/apply:
           attach-workspace: true
+          tag: 1.14.8 # terraform version 
           context: terraform
           path: ./infrastructure/terraform
           requires:
