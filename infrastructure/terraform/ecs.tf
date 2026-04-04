@@ -47,8 +47,9 @@ resource "aws_iam_role_policy" "ecs_db_url_access" {
 
 # 3. CloudWatch Log Group (To see your console.logs)
 resource "aws_cloudwatch_log_group" "ecs_logs" {
-  name              = "/ecs/${var.app_name}"
+  name_prefix       = "/ecs/${var.app_name}-"
   retention_in_days = 7
+  skip_destroy      = true
 }
 
 
