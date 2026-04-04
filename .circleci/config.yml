@@ -92,12 +92,10 @@ jobs:
     steps:
       - checkout
       - run:
-        name: Debug env vars
-        command: |
-          echo "TF_WORKSPACE=$TF_WORKSPACE"
-          echo "TF_CLOUD_ORGANIZATION=$TF_CLOUD_ORGANIZATION"
-          echo "TF_TOKEN exists=$([ -n "$TF_TOKEN_app_terraform_io" ] && echo yes || echo NO)"
-
+          name: Debug env vars
+          command: |
+            echo "TF_WORKSPACE=$TF_WORKSPACE"
+            echo "TF_CLOUD_ORGANIZATION=$TF_CLOUD_ORGANIZATION"
       - terraform/init:
           path: infrastructure/terraform
       - terraform/validate:
