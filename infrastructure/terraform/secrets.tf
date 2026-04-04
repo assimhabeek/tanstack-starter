@@ -11,9 +11,9 @@ locals {
   # This decodes the JSON object that RDS automatically creates
   rds_creds = jsondecode(data.aws_secretsmanager_secret_version.rds_password.secret_string)
 
-# URL encode the password to handle special characters like '#' and '|'
+  # URL encode the password to handle special characters like '#' and '|'
   encoded_pass = urlencode(local.rds_creds.password)
-  
+
   # Construct the clean connection string using parsed values
   # Note: we use local.rds_creds.password instead of the whole JSON string
   constructed_db_url = "postgresql://${aws_db_instance.postgres.username}:${local.encoded_pass}@${aws_db_instance.postgres.address}:${aws_db_instance.postgres.port}/${aws_db_instance.postgres.db_name}?sslmode=no-verify"

@@ -114,6 +114,6 @@ variable "app_title" {
 
 
 variable "container_image_tag" {
-  type = string
+  type        = string
   description = "Docker image tag"
 }

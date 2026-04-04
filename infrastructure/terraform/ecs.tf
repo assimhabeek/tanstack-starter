@@ -129,8 +129,8 @@ resource "aws_ecs_service" "main" {
   force_new_deployment = true
 
   # triggers = {
-    # Using a timestamp ensures this value is different every time you run 'apply'
-    # redeployment = plantimestamp()
+  # Using a timestamp ensures this value is different every time you run 'apply'
+  # redeployment = plantimestamp()
   # }
 
   network_configuration {
