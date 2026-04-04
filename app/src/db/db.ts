@@ -1,3 +1,4 @@
+import fs from 'node:fs'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import pg from 'pg'
 import { env } from '@/env'
@@ -8,7 +9,8 @@ const { Pool } = pg
 const pool = new Pool({
   connectionString: env.DATABASE_URL,
   ssl: {
-    ca: process.env.DB_CA_CERT?.replace(/\\n/g, '\n')
+    // biome-ignore lint/style/noNonNullAssertion: we need to make sure DB_CA_CERT is defined
+    ca: fs.readFileSync(process.env.DB_CA_CERT!).toString()
   }
 })
 

@@ -1,3 +1,4 @@
+import fs from 'node:fs'
 import { defineConfig } from 'drizzle-kit'
 
 export default defineConfig({
@@ -6,7 +7,8 @@ export default defineConfig({
   dialect: 'postgresql',
   dbCredentials: {
     ssl: {
-      ca: process.env.DB_CA_CERT?.replace(/\\n/g, '\n'),
+      // biome-ignore lint/style/noNonNullAssertion: we need to make sure DB_CA_CERT is defined
+      ca: fs.readFileSync(process.env.DB_CA_CERT!).toString(),
       rejectUnauthorized: true
     },
     // biome-ignore lint/style/noNonNullAssertion: add env validation later

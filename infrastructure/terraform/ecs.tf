@@ -79,12 +79,6 @@ resource "aws_ecs_task_definition" "app" {
         { name = "SENTRY_ORG", value = var.sentry_org },
         { name = "SENTRY_PROJECT", value = var.sentry_project },
         { name = "PORT", value = tostring(var.app_port) },
-        {
-          name = "DB_CA_CERT",
-          # This reads the entire file (all blocks) into the variable
-          value = file("${path.module}/certs/us-east-1-bundle.pem")
-        },
-
       ]
       # SENSITIVE: Hidden values pulled at runtime
       secrets = [
