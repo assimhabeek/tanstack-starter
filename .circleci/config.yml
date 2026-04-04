@@ -145,7 +145,7 @@ workflows:
           pre-steps:
             - run: 
                 name: Inject SHA
-                command: echo 'export TF_VAR_sha=${CIRCLE_SHA1}' >> $BASH_ENV
+                command: echo 'export TF_VAR_container_image_tag=${CIRCLE_SHA1}' >> $BASH_ENV
           context:
             - terraform
             - aws-credentials
