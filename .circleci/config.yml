@@ -123,22 +123,28 @@ workflows:
       # Terraform plan
       - terraform/fmt:
           checkout: true
-          context: terraform
+          context:
+            - terraform
+            - aws-credentials
           tag: 1.14.8 # terraform version 
           path: ./infrastructure/terraform
       - terraform/validate:
           checkout: true
-          context: terraform
           tag: 1.14.8 # terraform version 
           path: ./infrastructure/terraform
+          context:
+            - terraform
+            - aws-credentials
           requires:
             - terraform/fmt
       - terraform/plan:
           checkout: true
-          context: terraform
           tag: 1.14.8 # terraform version 
           persist-workspace: true
           path: ./infrastructure/terraform
+          context:
+            - terraform
+            - aws-credentials
           requires:
             - terraform/validate
 
@@ -151,8 +157,10 @@ workflows:
       - terraform/apply:
           attach-workspace: true
           tag: 1.14.8 # terraform version 
-          context: terraform
           path: ./infrastructure/terraform
+          context:
+            - terraform
+            - aws-credentials
           requires:
             - hold
 
