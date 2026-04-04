@@ -151,8 +151,6 @@ workflows:
             - aws-credentials
           requires:
             - terraform/validate
-          environment:
-            TF_VAR_container_image_tag: ${CIRCLE_SHA1}
 
       # Manual approval before apply
       - hold:
