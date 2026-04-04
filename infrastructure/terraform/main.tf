@@ -1,13 +1,4 @@
 terraform {
-  cloud {
-
-    organization = "assem-dev"
-
-    workspaces {
-      name = "zeroday-kit"
-    }
-  }
-
   required_providers {
     aws = {
       source  = "hashicorp/aws"
