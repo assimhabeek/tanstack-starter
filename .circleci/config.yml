@@ -154,28 +154,27 @@ workflows:
             - test
             - typecheck
             - build
-
       # Terraform plan
       - terraform-plan:
+          context: terraform
           requires:
             - dockerize
-
       # Manual approval before apply
       - hold:
           type: approval
           requires:
             - terraform-plan
-
       # Terraform apply
       - terraform-apply:
+          context: terraform
           requires:
             - hold
-
       # Terraform destroy (manual)
       - hold-destroy:
           type: approval
           requires:
             - terraform-apply
       - terraform-destroy:
+          context: terraform
           requires:
             - hold-destroy
