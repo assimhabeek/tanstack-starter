@@ -116,4 +116,5 @@ variable "app_title" {
 variable "container_image_tag" {
   type        = string
   description = "Docker image tag"
+  default     = "latest"
 }
