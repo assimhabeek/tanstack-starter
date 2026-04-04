@@ -87,45 +87,6 @@ jobs:
             - app/.output
             - Dockerfile
 
-  terraform-plan:
-    executor: terraform/default
-    steps:
-      - checkout
-      - run:
-          name: Debug env vars
-          command: |
-            echo "TF_WORKSPACE=$TF_WORKSPACE"
-            echo "TF_CLOUD_ORGANIZATION=$TF_CLOUD_ORGANIZATION"
-      - terraform/init:
-          path: infrastructure/terraform
-      - terraform/validate:
-          path: infrastructure/terraform
-      - terraform/fmt:
-          path: infrastructure/terraform
-      - terraform/plan:
-          path: infrastructure/terraform
-          out: plan.tfplan
-      - persist_to_workspace:
-          root: .
-          paths:
-            - infrastructure/terraform/plan.tfplan
-
-  terraform-apply:
-    executor: terraform/default
-    steps:
-      - attach_workspace:
-          at: .
-      - terraform/apply:
-          path: infrastructure/terraform
-          plan: infrastructure/terraform/plan.tfplan
-
-  terraform-destroy:
-    executor: terraform/default
-    steps:
-      - attach_workspace:
-          at: .
-      - terraform/destroy:
-          path: infrastructure/terraform
 # -----------------------------
 # Workflows
 # -----------------------------
@@ -160,26 +121,43 @@ workflows:
       #       - typecheck
       #       - build
       # Terraform plan
-      - terraform-plan:
+      - terraform/fmt:
+          checkout: true
           context: terraform
-          # requires:
-          #   - dockerize
+          path: ./infrastructure/terraform
+      - terraform/validate:
+          checkout: true
+          context: terraform
+          path: ./infrastructure/terraform
+          requires:
+            - terraform/fmt
+      - terraform/plan:
+          checkout: true
+          context: terraform
+          persist-workspace: true
+          path: ./infrastructure/terraform
+          requires:
+            - terraform/validate
+
       # Manual approval before apply
       - hold:
           type: approval
           requires:
-            - terraform-plan
-      # Terraform apply
-      - terraform-apply:
+            - terraform/plan
+
+      - terraform/apply:
+          attach-workspace: true
           context: terraform
+          path: ./infrastructure/terraform
           requires:
             - hold
+
       # Terraform destroy (manual)
-      - hold-destroy:
-          type: approval
-          requires:
-            - terraform-apply
-      - terraform-destroy:
-          context: terraform
-          requires:
-            - hold-destroy
+      # - hold-destroy:
+      #     type: approval
+      #     requires:
+      #       - terraform-apply
+      # - terraform-destroy:
+      #     context: terraform
+      #     requires:
+      #       - hold-destroy
