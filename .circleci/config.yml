@@ -87,6 +87,10 @@ jobs:
             - app/.output
             - Dockerfile
 
+parameters:
+  tf_path:
+    type: string
+    default: "./infrastructure/temp"
 # -----------------------------
 # Workflows
 # -----------------------------
@@ -127,11 +131,11 @@ workflows:
             - terraform
             - aws-credentials
           tag: 1.14.8 # terraform version 
-          path: ./infrastructure/terraform
+          path: << pipeline.parameters.tf_path >>
       - terraform/validate:
           checkout: true
           tag: 1.14.8 # terraform version 
-          path: ./infrastructure/terraform
+          path: << pipeline.parameters.tf_path >>
           context:
             - terraform
             - aws-credentials
@@ -141,7 +145,7 @@ workflows:
           checkout: true
           tag: 1.14.8 # terraform version 
           persist-workspace: true
-          path: ./infrastructure/terraform
+          path: << pipeline.parameters.tf_path >>
           pre-steps:
             - run: 
                 name: Inject SHA
@@ -161,7 +165,7 @@ workflows:
       - terraform/apply:
           attach-workspace: true
           tag: 1.14.8 # terraform version 
-          path: ./infrastructure/terraform
+          path: << pipeline.parameters.tf_path >>
           context:
             - terraform
             - aws-credentials
