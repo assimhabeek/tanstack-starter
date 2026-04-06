@@ -144,8 +144,8 @@ workflows:
       #       - typecheck
       #       - build
       # Terraform plan
-    deploy:
-      context:
-        - terraform
-        - aws-credentials
+      - deploy:
+          context:
+            - terraform
+            - aws-credentials
 
