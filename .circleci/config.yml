@@ -6,6 +6,13 @@ orbs:
   aws-cli: circleci/aws-cli@5.4.1
   terraform: circleci/terraform@3.7.0
 
+
+parameters:
+  tf_path:
+    type: string
+    default: "./infrastructure/temp"
+
+
 # -----------------------------
 # Reusable commands
 # -----------------------------
@@ -87,16 +94,12 @@ jobs:
             - app/.output
             - Dockerfile
 
-parameters:
-  tf_path:
-    type: string
-    default: "./infrastructure/temp"
-
-
   deploy:
-    executor: terraform/default
-    tag: 1.14.8
-    steps:
+    executor:
+      name: terraform/default
+      tag: 1.14.8
+    working_directory: << pipeline.parameters.tf_path >>
+    steps:      
       - checkout
       - terraform/init:
       - terraform/fmt:
