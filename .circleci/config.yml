@@ -4,7 +4,6 @@ orbs:
   node: circleci/node@5.2
   aws-ecr: circleci/aws-ecr@9.8.1
   aws-cli: circleci/aws-cli@5.4.1
-  terraform: circleci/terraform@3.7.0
 
 
 # -----------------------------
@@ -94,23 +93,41 @@ jobs:
       tag: 1.14.8
     steps:      
       - checkout
-      - terraform/init:
-          path: ./infrastructure/temp
-      - terraform/fmt:
-          path: ./infrastructure/temp
-      - terraform/validate:
-          path: ./infrastructure/temp
-      - terraform/plan:
-          path: ./infrastructure/temp
-      - terraform/apply:
-          path: ./infrastructure/temp
-      - terraform/plan:
-          destroy_plan: true
-          path: ./infrastructure/temp
-      - terraform/destroy:
-          path: ./infrastructure/temp
+      # Terraform fmt
+      - run:
+          name: Terraform fmt
+          command: |
+            cd ./infrastructure/temp
+            terraform fmt -check
 
+      # Terraform init
+      - run:
+          name: Terraform init
+          command: |
+            cd ./infrastructure/temp
+            terraform init
 
+      # Terraform validate
+      - run:
+          name: Terraform validate
+          command: |
+            cd ./infrastructure/temp
+            terraform validate
+
+      # Terraform plan
+      - run:
+          name: Terraform plan
+          command: |
+            cd ./infrastructure/temp
+            terraform plan -out=tfplan
+
+      # Terraform apply
+      - run:
+          name: Terraform apply
+          command: |
+            cd ./infrastructure/temp
+            terraform apply -auto-approve tfplan
+            
 # -----------------------------
 # Workflows
 # -----------------------------
