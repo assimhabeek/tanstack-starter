@@ -91,6 +91,23 @@ parameters:
   tf_path:
     type: string
     default: "./infrastructure/temp"
+
+
+  deploy:
+    executor: terraform/default
+    tag: 1.14.8
+    steps:
+      - checkout
+      - terraform/init:
+      - terraform/fmt:
+      - terraform/validate:
+      - terraform/plan:
+      - terraform/apply:
+      - terraform/plan:
+          destroy_plan: true
+      - terraform/destroy:
+    working_directory: ${{ parameters.tf_path }}
+
 # -----------------------------
 # Workflows
 # -----------------------------
@@ -125,59 +142,8 @@ workflows:
       #       - typecheck
       #       - build
       # Terraform plan
-      - terraform/fmt:
-          checkout: true
-          context:
-            - terraform
-            - aws-credentials
-          tag: 1.14.8 # terraform version 
-          path: << pipeline.parameters.tf_path >>
-      - terraform/validate:
-          checkout: true
-          tag: 1.14.8 # terraform version 
-          path: << pipeline.parameters.tf_path >>
-          context:
-            - terraform
-            - aws-credentials
-          requires:
-            - terraform/fmt
-      - terraform/plan:
-          checkout: true
-          tag: 1.14.8 # terraform version 
-          persist-workspace: true
-          path: << pipeline.parameters.tf_path >>
-          pre-steps:
-            - run: 
-                name: Inject SHA
-                command: echo 'export TF_VAR_container_image_tag=${CIRCLE_SHA1}' >> $BASH_ENV
-          context:
-            - terraform
-            - aws-credentials
-          requires:
-            - terraform/validate
+    deploy:
+      context:
+        - terraform
+        - aws-credentials
 
-      # Manual approval before apply
-      - hold:
-          type: approval
-          requires:
-            - terraform/plan
-
-      - terraform/apply:
-          attach-workspace: true
-          tag: 1.14.8 # terraform version 
-          path: << pipeline.parameters.tf_path >>
-          context:
-            - terraform
-            - aws-credentials
-          requires:
-            - hold
-
-      # Terraform destroy (manual)
-      # - hold-destroy:
-      #     type: approval
-      #     requires:
-      #       - terraform-apply
-      # - terraform-destroy:
-      #     context: terraform
-      #     requires:
-      #       - hold-destroy
