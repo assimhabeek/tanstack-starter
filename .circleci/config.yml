@@ -7,12 +7,6 @@ orbs:
   terraform: circleci/terraform@3.7.0
 
 
-parameters:
-  tf_path:
-    type: string
-    default: "./infrastructure/temp"
-
-
 # -----------------------------
 # Reusable commands
 # -----------------------------
@@ -98,7 +92,7 @@ jobs:
     executor:
       name: terraform/default
       tag: 1.14.8
-    working_directory: << parameters.tf_path >>
+    working_directory: ./infrastructure/temp
     steps:      
       - checkout
       - terraform/init
