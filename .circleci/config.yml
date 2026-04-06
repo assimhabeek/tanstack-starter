@@ -98,7 +98,7 @@ jobs:
     executor:
       name: terraform/default
       tag: 1.14.8
-    working_directory: << pipeline.parameters.tf_path >>
+    working_directory: << parameters.tf_path >>
     steps:      
       - checkout
       - terraform/init:
@@ -109,7 +109,6 @@ jobs:
       - terraform/plan:
           destroy_plan: true
       - terraform/destroy:
-    working_directory: ${{ parameters.tf_path }}
 
 # -----------------------------
 # Workflows
