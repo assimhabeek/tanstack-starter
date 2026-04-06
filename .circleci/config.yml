@@ -97,23 +97,11 @@ jobs:
     steps:
       - checkout
 
-      # Restore cache to speed up 'terraform init'
-      - restore_cache:
-          keys:
-            - v1-terraform-{{ checksum "main.tf" }}
-            - v1-terraform-
-
       - run:
           name: Terraform Init & Format
           command: |
             terraform fmt -check
             terraform init -input=false
-
-      # Save the .terraform directory (providers/modules) to cache
-      - save_cache:
-          key: v1-terraform-{{ checksum "main.tf" }}
-          paths:
-            - .terraform
 
       - run:
           name: Terraform Validate & Plan
