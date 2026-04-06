@@ -92,10 +92,10 @@ jobs:
       - image: hashicorp/terraform:1.14.8
     
     # Set the working directory once to avoid 'cd' in every step
-    working_directory: ~/infrastructure/temp
+    working_directory: infrastructure/temp
 
     steps:
-      - checkout:
+      - checkout
 
       # Restore cache to speed up 'terraform init'
       - restore_cache:
