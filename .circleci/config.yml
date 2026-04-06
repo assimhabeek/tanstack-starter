@@ -114,6 +114,34 @@ jobs:
       - run:
           name: Terraform Apply
           command: terraform apply -auto-approve tfplan            
+  
+  destroy:
+    docker:
+      - image: hashicorp/terraform:1.14.8
+    working_directory: /tmp/workspace/infrastructure/temp
+    steps:
+      - checkout:
+          path: /tmp/workspace  # Need to checkout to the root
+      - run:
+          name: Terraform Init
+          command: terraform init -input=false
+
+      - run:
+          name: Terraform Destroy Plan
+          command: |
+            terraform plan -destroy -out=destroy_plan
+      
+      # Optional: Store the plan as an artifact so you can download and read it
+      - store_artifacts:
+          # Path to the file you want to save
+          path: destroy_plan
+          # Optional: The folder name it will appear under in the UI
+          destination: terraform-plans
+
+      - run:
+          name: Terraform Destroy
+          # -auto-approve is safe here because the "approval" happens in the UI
+          command: terraform destroy -auto-approve
 # -----------------------------
 # Workflows
 # -----------------------------
@@ -153,3 +181,16 @@ workflows:
             - terraform
             - aws-credentials
 
+      # This creates the "Pause" button in the CircleCI UI
+      - request-destroy:
+          type: approval
+          requires:
+            - deploy
+
+      # This job only runs AFTER you click the button above
+      - destroy:
+          context:
+            - terraform
+            - aws-credentials
+          requires:
+            - request-destroy
