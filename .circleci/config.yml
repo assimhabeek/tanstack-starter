@@ -92,17 +92,24 @@ jobs:
     executor:
       name: terraform/default
       tag: 1.14.8
-    working_directory: ./infrastructure/temp
     steps:      
       - checkout
-      - terraform/init
-      - terraform/fmt
-      - terraform/validate
-      - terraform/plan
-      - terraform/apply
+      - terraform/init:
+          path: ./infrastructure/temp
+      - terraform/fmt:
+          path: ./infrastructure/temp
+      - terraform/validate:
+          path: ./infrastructure/temp
+      - terraform/plan:
+          path: ./infrastructure/temp
+      - terraform/apply:
+          path: ./infrastructure/temp
       - terraform/plan:
           destroy_plan: true
-      - terraform/destroy
+          path: ./infrastructure/temp
+      - terraform/destroy:
+          path: ./infrastructure/temp
+
 
 # -----------------------------
 # Workflows
