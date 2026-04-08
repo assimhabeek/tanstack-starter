@@ -92,14 +92,14 @@ jobs:
       - image: hashicorp/terraform:1.14.8
     # Set the working directory once to avoid 'cd' in every step
     working_directory: /tmp/workspace/infrastructure/terraform
-    environment:
-      TF_VAR_container_image_tag: $(echo $CIRCLE_SHA1 | cut -c -7) 
 
     steps:
       - run:
-          name: Echo tag
-          command: echo $TF_VAR_container_image_tag
-    
+          name: Set container image tag
+          command: echo 'export TF_VAR_container_image_tag=$(echo $CIRCLE_SHA1 | cut -c -7)' >> "$BASH_ENV"    
+      - run:
+          name: Echo container image tag
+          command: echo $TF_VAR_container_image_tag    
       # - checkout:
       #     path: /tmp/workspace  # Need to checkout to the root
       # - run:
