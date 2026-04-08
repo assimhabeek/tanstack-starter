@@ -100,7 +100,7 @@ jobs:
 
       - run:
           name: Echo container image tag
-          command: echo $TF_VAR_container_image_tag    
+          command: echo "$TF_VAR_container_image_tag"    
 
       - run:
           name: Echo container image tag 2
