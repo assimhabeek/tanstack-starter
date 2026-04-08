@@ -162,7 +162,7 @@ workflows:
           region: ${AWS_REGION}
           repo: ${APP_NAME}
           create_repo: true 
-          tag: "latest,${CIRCLE_SHA1}"
+          tag: "${CIRCLE_SHA1:0:7},latest"
           dockerfile: Dockerfile
           path: .
           attach_workspace: true
