@@ -106,12 +106,12 @@ jobs:
           name: Terraform Validate & Plan
           command: |
             terraform validate
-            terraform plan -out=tfplan
+            terraform plan -var="container_image_tag=${CIRCLE_SHA1:0:7}" -out=tfplan
       # Persist the plan file if you intend to separate 'plan' and 'apply' 
       # into different jobs. Otherwise, just run apply.
       - run:
           name: Terraform Apply
-          command: terraform apply -var="container_image_tag=${CIRCLE_SHA1:0:7}" -auto-approve tfplan            
+          command: terraform apply -auto-approve tfplan            
   
   destroy:
     docker:
