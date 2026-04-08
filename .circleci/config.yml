@@ -93,7 +93,7 @@ jobs:
     # Set the working directory once to avoid 'cd' in every step
     working_directory: /tmp/workspace/infrastructure/terraform
     environment:
-      TF_VAR_container_image_tag: ${CIRCLE_SHA1} 
+      TF_VAR_container_image_tag: $(echo $CIRCLE_SHA1 | cut -c -7) 
 
     steps:
       - checkout:
@@ -109,10 +109,6 @@ jobs:
           command: |
             terraform validate
             terraform plan -out=tfplan
-
-      - run:
-          name: Set short image tag
-          command: echo "export TF_VAR_container_image_tag=${CIRCLE_SHA1:0:7}" >> $BASH_ENV
       # Persist the plan file if you intend to separate 'plan' and 'apply' 
       # into different jobs. Otherwise, just run apply.
       - run:
