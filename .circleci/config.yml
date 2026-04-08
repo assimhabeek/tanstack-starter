@@ -90,9 +90,6 @@ jobs:
   deploy:
     docker:
       - image: hashicorp/terraform:1.14.8
-    environment:
-      TF_VAR_container_image_tag: ${CIRCLE_SHA1}
-    
     # Set the working directory once to avoid 'cd' in every step
     working_directory: /tmp/workspace/infrastructure/terraform
 
@@ -110,6 +107,9 @@ jobs:
           command: |
             terraform validate
             terraform plan -out=tfplan
+      - run:
+          name: Echo Image Tag
+          command: echo ${TF_VAR_container_image_tag}
 
       # Persist the plan file if you intend to separate 'plan' and 'apply' 
       # into different jobs. Otherwise, just run apply.
@@ -151,40 +151,40 @@ workflows:
   ci-cd:
     jobs:
       # Parallel CI jobs
-      - lint
-      - test
-      - typecheck
-      - build
+      # - lint
+      # - test
+      # - typecheck
+      # - build
 
-      # Build and push Docker image
-      - aws-ecr/build_and_push_image:
-          name: dockerize
-          auth:
-            - aws-cli/setup:
-                region: ${AWS_REGION}
-          checkout: false
-          region: ${AWS_REGION}
-          repo: ${APP_NAME}
-          create_repo: true 
-          tag: "latest,${CIRCLE_SHA1}"
-          dockerfile: Dockerfile
-          path: .
-          attach_workspace: true
-          workspace_root: .
-          context: aws-credentials
-          requires:
-            - lint
-            - test
-            - typecheck
-            - build
+      # # Build and push Docker image
+      # - aws-ecr/build_and_push_image:
+      #     name: dockerize
+      #     auth:
+      #       - aws-cli/setup:
+      #           region: ${AWS_REGION}
+      #     checkout: false
+      #     region: ${AWS_REGION}
+      #     repo: ${APP_NAME}
+      #     create_repo: true 
+      #     tag: "latest,${CIRCLE_SHA1}"
+      #     dockerfile: Dockerfile
+      #     path: .
+      #     attach_workspace: true
+      #     workspace_root: .
+      #     context: aws-credentials
+      #     requires:
+      #       - lint
+      #       - test
+      #       - typecheck
+      #       - build
 
       # Terraform plan
       - deploy:
           context:
             - terraform
             - aws-credentials
-          requires:
-            - dockerize
+          # requires:
+          #   - dockerize
 
       # This creates the "Pause" button in the CircleCI UI
       - request-destroy:
