@@ -109,9 +109,11 @@ jobs:
           command: |
             terraform validate
             terraform plan -out=tfplan
+
       - run:
-          name: Echo Image Tag
-          command: echo ${TF_VAR_container_image_tag}
+            name: Set latest image tag
+            # This writes the export command to a file that CircleCI loads for every step
+            command: echo 'export TF_VAR_container_image_tag=${CIRCLE_SHA1}' >> $BASH_ENV
 
       # Persist the plan file if you intend to separate 'plan' and 'apply' 
       # into different jobs. Otherwise, just run apply.
