@@ -1,6 +1,9 @@
 import { createEnv } from '@t3-oss/env-core'
 import { z } from 'zod'
 
+console.log('process.env', process.env)
+console.log('import.meta.env', import.meta.env)
+
 export const env = createEnv({
   server: {
     DATABASE_URL: z.string().min(1).nonempty('Database URL is required'),
