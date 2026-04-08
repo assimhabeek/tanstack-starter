@@ -29,9 +29,10 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
     CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
-    VITE_APP_TITLE: import.meta.env.VITE_APP_TITLE,
-    VITE_CLERK_PUBLISHABLE_KEY: import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
-    VITE_SENTRY_DSN: import.meta.env.VITE_SENTRY_DSN
+    VITE_APP_TITLE: process.env.VITE_APP_TITLE ?? import.meta.env.VITE_APP_TITLE,
+    VITE_CLERK_PUBLISHABLE_KEY:
+      process.env.VITE_CLERK_PUBLISHABLE_KEY ?? import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
+    VITE_SENTRY_DSN: process.env.VITE_SENTRY_DSN ?? import.meta.env.VITE_SENTRY_DSN
   },
 
   /**
