@@ -90,6 +90,8 @@ jobs:
   deploy:
     docker:
       - image: hashicorp/terraform:1.14.8
+    environment:
+      TF_VAR_container_image_tag: ${CIRCLE_SHA1}
     
     # Set the working directory once to avoid 'cd' in every step
     working_directory: /tmp/workspace/infrastructure/terraform
@@ -181,8 +183,6 @@ workflows:
           context:
             - terraform
             - aws-credentials
-          environment:
-            TF_VAR_container_image_tag: ${CIRCLE_SHA1}
           requires:
             - dockerize
 
