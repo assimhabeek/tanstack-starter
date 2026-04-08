@@ -96,24 +96,28 @@ jobs:
       TF_VAR_container_image_tag: $(echo $CIRCLE_SHA1 | cut -c -7) 
 
     steps:
-      - checkout:
-          path: /tmp/workspace  # Need to checkout to the root
       - run:
-          name: Terraform Init & Format
-          command: |
-            terraform fmt -check
-            terraform init -input=false
+          name: Echo tag
+          command: echo $TF_VAR_container_image_tag
+    
+      # - checkout:
+      #     path: /tmp/workspace  # Need to checkout to the root
+      # - run:
+      #     name: Terraform Init & Format
+      #     command: |
+      #       terraform fmt -check
+      #       terraform init -input=false
 
-      - run:
-          name: Terraform Validate & Plan
-          command: |
-            terraform validate
-            terraform plan -out=tfplan
-      # Persist the plan file if you intend to separate 'plan' and 'apply' 
-      # into different jobs. Otherwise, just run apply.
-      - run:
-          name: Terraform Apply
-          command: terraform apply -auto-approve tfplan            
+      # - run:
+      #     name: Terraform Validate & Plan
+      #     command: |
+      #       terraform validate
+      #       terraform plan -out=tfplan
+      # # Persist the plan file if you intend to separate 'plan' and 'apply' 
+      # # into different jobs. Otherwise, just run apply.
+      # - run:
+      #     name: Terraform Apply
+      #     command: terraform apply -auto-approve tfplan            
   
   destroy:
     docker:
@@ -147,42 +151,42 @@ jobs:
 # -----------------------------
 workflows:
   ci-cd:
-    jobs:
-      # Parallel CI jobs
-      - lint
-      - test
-      - typecheck
-      - build
+    # jobs:
+    #   # Parallel CI jobs
+    #   - lint
+    #   - test
+    #   - typecheck
+    #   - build
 
-      # Build and push Docker image
-      - aws-ecr/build_and_push_image:
-          name: dockerize
-          auth:
-            - aws-cli/setup:
-                region: ${AWS_REGION}
-          checkout: false
-          region: ${AWS_REGION}
-          repo: ${APP_NAME}
-          create_repo: true 
-          tag: "latest,${CIRCLE_SHA1}"
-          dockerfile: Dockerfile
-          path: .
-          attach_workspace: true
-          workspace_root: .
-          context: aws-credentials
-          requires:
-            - lint
-            - test
-            - typecheck
-            - build
+    #   # Build and push Docker image
+    #   - aws-ecr/build_and_push_image:
+    #       name: dockerize
+    #       auth:
+    #         - aws-cli/setup:
+    #             region: ${AWS_REGION}
+    #       checkout: false
+    #       region: ${AWS_REGION}
+    #       repo: ${APP_NAME}
+    #       create_repo: true 
+    #       tag: "latest,${CIRCLE_SHA1}"
+    #       dockerfile: Dockerfile
+    #       path: .
+    #       attach_workspace: true
+    #       workspace_root: .
+    #       context: aws-credentials
+    #       requires:
+    #         - lint
+    #         - test
+    #         - typecheck
+    #         - build
 
       # Terraform plan
       - deploy:
           context:
             - terraform
             - aws-credentials
-          requires:
-            - dockerize
+          # requires:
+          #   - dockerize
 
       # This creates the "Pause" button in the CircleCI UI
       - request-destroy:
