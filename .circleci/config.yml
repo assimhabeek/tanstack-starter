@@ -94,35 +94,24 @@ jobs:
     working_directory: /tmp/workspace/infrastructure/terraform
 
     steps:
+      - checkout:
+          path: /tmp/workspace  # Need to checkout to the root
       - run:
-          name: Set container image tag
-          command: echo 'export TF_VAR_container_image_tag="${CIRCLE_SHA1:0:7}"' >> "$BASH_ENV"
+          name: Terraform Init & Format
+          command: |
+            terraform fmt -check
+            terraform init -input=false
 
       - run:
-          name: Echo container image tag
-          command: echo ${TF_VAR_container_image_tag}    
-
+          name: Terraform Validate & Plan
+          command: |
+            terraform validate
+            terraform plan -out=tfplan
+      # Persist the plan file if you intend to separate 'plan' and 'apply' 
+      # into different jobs. Otherwise, just run apply.
       - run:
-          name: Echo container image tag 2
-          command: echo $CIRCLE_SHA1    
-      # - checkout:
-      #     path: /tmp/workspace  # Need to checkout to the root
-      # - run:
-      #     name: Terraform Init & Format
-      #     command: |
-      #       terraform fmt -check
-      #       terraform init -input=false
-
-      # - run:
-      #     name: Terraform Validate & Plan
-      #     command: |
-      #       terraform validate
-      #       terraform plan -out=tfplan
-      # # Persist the plan file if you intend to separate 'plan' and 'apply' 
-      # # into different jobs. Otherwise, just run apply.
-      # - run:
-      #     name: Terraform Apply
-      #     command: terraform apply -auto-approve tfplan            
+          name: Terraform Apply
+          command: terraform apply -var="container_image_tag=${CIRCLE_SHA1:0:7}" -auto-approve tfplan            
   
   destroy:
     docker:
