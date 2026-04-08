@@ -92,7 +92,7 @@ jobs:
       - image: hashicorp/terraform:1.14.8
     
     # Set the working directory once to avoid 'cd' in every step
-    working_directory: /tmp/workspace/infrastructure/temp
+    working_directory: /tmp/workspace/infrastructure/terraform
 
     steps:
       - checkout:
@@ -118,7 +118,7 @@ jobs:
   destroy:
     docker:
       - image: hashicorp/terraform:1.14.8
-    working_directory: /tmp/workspace/infrastructure/temp
+    working_directory: /tmp/workspace/infrastructure/terraform
     steps:
       - checkout:
           path: /tmp/workspace  # Need to checkout to the root
