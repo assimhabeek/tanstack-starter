@@ -151,7 +151,7 @@ jobs:
 # -----------------------------
 workflows:
   ci-cd:
-    # jobs:
+    jobs:
     #   # Parallel CI jobs
     #   - lint
     #   - test
