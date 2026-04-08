@@ -23,7 +23,6 @@ COPY app/.output ./
 ENV PORT=3000
 ENV HOST=0.0.0.0
 ENV NODE_ENV=production
-ENV DB_CA_CERT=/app/certs/rds-ca.pem
 
 # Expose port
 EXPOSE 3000

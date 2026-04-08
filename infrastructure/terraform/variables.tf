@@ -109,7 +109,7 @@ variable "clerk_secret" {
 variable "app_title" {
   type        = string
   description = "The title for your VITE_APP_TITLE"
-  default     = "My Fullstack App"
+  default     = "ZeroDay Kit"
 }
 
 
@@ -117,4 +117,10 @@ variable "container_image_tag" {
   type        = string
   description = "Docker image tag"
   default     = "latest"
+}
+
+variable "db_ca_cert" {
+  type        = string
+  description = "Docker image tag"
+  default     = "/app/certs/rds-ca.pem"
 }

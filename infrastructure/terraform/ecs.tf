@@ -80,6 +80,7 @@ resource "aws_ecs_task_definition" "app" {
         { name = "SENTRY_ORG", value = var.sentry_org },
         { name = "SENTRY_PROJECT", value = var.sentry_project },
         { name = "PORT", value = tostring(var.app_port) },
+        { name = "DB_CA_CERT", value = var.db_ca_cert }
       ]
       # SENSITIVE: Hidden values pulled at runtime
       secrets = [
