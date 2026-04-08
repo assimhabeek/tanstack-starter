@@ -96,14 +96,14 @@ jobs:
     steps:
       - run:
           name: Set container image tag
-          command: echo 'export TF_VAR_container_image_tag=$(echo $CIRCLE_SHA1 | cut -c -7)' >> "$BASH_ENV"   
+          command: echo 'export TF_VAR_container_image_tag="$CIRCLE_SHA1"' >> "$BASH_ENV"  
 
       - run:
           name: Echo container image tag
           command: echo $TF_VAR_container_image_tag    
 
       - run:
-          name: Echo container image tag
+          name: Echo container image tag 2
           command: echo $CIRCLE_SHA1    
       # - checkout:
       #     path: /tmp/workspace  # Need to checkout to the root
