@@ -96,11 +96,11 @@ jobs:
     steps:
       - run:
           name: Set container image tag
-          command: echo 'export TF_VAR_container_image_tag="$CIRCLE_SHA1"' >> "$BASH_ENV"  
+          command: 'echo export GIT_SHORT_SHA=${CIRCLE_SHA1:0:7}' >> $BASH_ENV
 
       - run:
           name: Echo container image tag
-          command: echo "$TF_VAR_container_image_tag"    
+          command: echo $TF_VAR_container_image_tag    
 
       - run:
           name: Echo container image tag 2
