@@ -6,11 +6,13 @@ export default defineConfig({
   schema: './src/db/schema.ts',
   dialect: 'postgresql',
   dbCredentials: {
-    ssl: {
-      // biome-ignore lint/style/noNonNullAssertion: we need to make sure DB_CA_CERT is defined
-      ca: fs.readFileSync(process.env.DB_CA_CERT!).toString(),
-      rejectUnauthorized: true
-    },
+    // setup ssl only if DB_CA_CERT is provided
+    ssl: process.env.DB_CA_CERT
+      ? {
+          ca: fs.readFileSync(process.env.DB_CA_CERT).toString(),
+          rejectUnauthorized: true
+        }
+      : undefined,
     // biome-ignore lint/style/noNonNullAssertion: add env validation later
     url: process.env.DATABASE_URL!
   }

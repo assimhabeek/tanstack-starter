@@ -90,11 +90,11 @@ resource "aws_ecs_task_definition" "app" {
         },
         {
           name      = "CLERK_SECRET_KEY"
-          valueFrom = aws_secretsmanager_secret.clerk_secret.arn
+          valueFrom = var.clerk_secret
         },
         {
           name      = "SENTRY_AUTH_TOKEN"
-          valueFrom = aws_secretsmanager_secret.sentry_token.arn
+          valueFrom = var.sentry_token
         }
       ],
       logConfiguration = {

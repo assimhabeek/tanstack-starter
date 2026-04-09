@@ -32,23 +32,3 @@ resource "aws_secretsmanager_secret_version" "db_url_value" {
   secret_id     = aws_secretsmanager_secret.db_url.id
   secret_string = local.constructed_db_url
 }
-
-# 4. Third-Party Shell Secrets (Value to be set manually in Console)
-resource "aws_secretsmanager_secret" "clerk_secret" {
-  name = "${var.app_name}/clerk-secret-key"
-}
-
-resource "aws_secretsmanager_secret" "sentry_token" {
-  name = "${var.app_name}/sentry-auth-token"
-}
-
-
-resource "aws_secretsmanager_secret_version" "sentry_token_value" {
-  secret_id     = aws_secretsmanager_secret.sentry_token.id
-  secret_string = var.sentry_token
-}
-
-resource "aws_secretsmanager_secret_version" "clerk_secret_value" {
-  secret_id     = aws_secretsmanager_secret.clerk_secret.id
-  secret_string = var.clerk_secret
-}
