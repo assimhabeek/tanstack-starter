@@ -37,9 +37,7 @@ resource "aws_iam_role_policy" "ecs_db_url_access" {
       Effect = "Allow"
       Action = ["secretsmanager:GetSecretValue"]
       Resource = [
-        aws_secretsmanager_secret.db_url.arn,
-        aws_secretsmanager_secret.clerk_secret.arn,
-        aws_secretsmanager_secret.sentry_token.arn
+        aws_secretsmanager_secret.db_url.arn
       ]
     }]
   })
