@@ -72,27 +72,18 @@ resource "aws_ecs_task_definition" "app" {
         }
       ],
       environment = [
-        { name = "VITE_APP_TITLE", value = var.app_title },
-        { name = "VITE_CLERK_PUBLISHABLE_KEY", value = var.clerk_pub_key },
-        { name = "VITE_SENTRY_DSN", value = var.sentry_dsn },
         { name = "SENTRY_ORG", value = var.sentry_org },
         { name = "SENTRY_PROJECT", value = var.sentry_project },
         { name = "PORT", value = tostring(var.app_port) },
-        { name = "DB_CA_CERT", value = var.db_ca_cert }
+        { name = "DB_CA_CERT", value = var.db_ca_cert },
+        { name = "CLERK_SECRET_KEY", value = var.clerk_secret },
+        { name = "SENTRY_AUTH_TOKEN", value = var.sentry_token }
       ]
       # SENSITIVE: Hidden values pulled at runtime
       secrets = [
         {
           name      = "DATABASE_URL"
           valueFrom = aws_secretsmanager_secret.db_url.arn
-        },
-        {
-          name      = "CLERK_SECRET_KEY"
-          valueFrom = var.clerk_secret
-        },
-        {
-          name      = "SENTRY_AUTH_TOKEN"
-          valueFrom = var.sentry_token
         }
       ],
       logConfiguration = {

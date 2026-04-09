@@ -77,6 +77,10 @@ jobs:
     steps:
       - checkout
       - install-deps
+      # values will be baked into the build files
+      - run:
+          name: Generate production environment variables file (browser only)
+          command: pnpm generate-prod-env
       - run:
           name: Build App
           working_directory: app

@@ -8,10 +8,9 @@ const { Pool } = pg
 
 const pool = new Pool({
   connectionString: env.DATABASE_URL,
-  ssl: {
-    // biome-ignore lint/style/noNonNullAssertion: we need to make sure DB_CA_CERT is defined
-    ca: fs.readFileSync(process.env.DB_CA_CERT!).toString()
-  }
+  ssl: process.env.DB_CA_CERT
+    ? { ca: fs.readFileSync(process.env.DB_CA_CERT).toString() }
+    : undefined
 })
 
 export const db = drizzle({
