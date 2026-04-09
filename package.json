@@ -8,7 +8,7 @@
     "lint": "biome lint --write --unsafe",
     "check": "biome check --write --unsafe",
     "create-pr": "node ./scripts/create-pr.js",
-    "generate-prod-env": "node ./scripts/generate-prod-env.js"
+    "generate-prod-env": "node ./scripts/generate-production-env.js"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.5",
