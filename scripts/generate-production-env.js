@@ -1,6 +1,6 @@
-const fs = require('node:fs')
+import fs from 'node:fs'
+import path from 'node:path'
 
-// Define which prefixes you want to include in your .env file
 const PREFIXES = ['VITE_']
 
 const envVars = Object.keys(process.env)
@@ -8,5 +8,12 @@ const envVars = Object.keys(process.env)
   .map((key) => `${key}=${process.env[key]}`)
   .join('\n')
 
-fs.writeFileSync('../app/.env.production', envVars)
-console.log(`✅ Generated .env.production with ${envVars.split('\n').length} variables.`)
+// Target file path
+const filePath = path.resolve(process.cwd(), 'app/.env.production')
+
+// Write file
+fs.writeFileSync(filePath, envVars)
+
+console.log(
+  `✅ Generated .env.production with ${envVars ? envVars.split('\n').length : 0} variables.`
+)
