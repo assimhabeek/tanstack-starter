@@ -118,6 +118,8 @@ jobs:
           command: terraform apply -auto-approve tfplan            
   
   infrastructure-provision:
+    # Even with this, we still use source $BASH_ENV explicitly because it is more reliable across different Docker images.
+    shell: /bin/bash -leo pipefail
     docker:
       - image: hashicorp/terraform:1.14.8
 
@@ -133,6 +135,7 @@ jobs:
           command: |
             chmod +x ./scripts/fetch_prod_tag.sh
             ./scripts/fetch_prod_tag.sh
+            source $BASH_ENV
             echo $PROD_IMAGE_TAG
 
   destroy:
