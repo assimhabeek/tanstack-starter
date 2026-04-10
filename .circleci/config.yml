@@ -126,6 +126,7 @@ jobs:
       - run:
           name: Fetch Current Production Tag
           command: |
+            ls
             chmod +x ./scripts/fetch_prod_tag.sh
             ./scripts/fetch_prod_tag.sh
             echo $PROD_IMAGE_TAG
