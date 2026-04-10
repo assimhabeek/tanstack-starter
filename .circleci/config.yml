@@ -126,7 +126,6 @@ jobs:
       - run:
           name: Fetch Current Production Tag
           command: |
-            ls scripts
             chmod +x ./scripts/fetch_prod_tag.sh
             ./scripts/fetch_prod_tag.sh
             echo $PROD_IMAGE_TAG
@@ -164,7 +163,11 @@ jobs:
 workflows:
   ci-cd:
     jobs:
-      - infrastructure-provision
+      - infrastructure-provision:
+          context:
+            - terraform
+            - aws-credentials
+
       # # Parallel CI jobs
       # - lint
       # - test
