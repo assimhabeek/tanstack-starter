@@ -123,6 +123,11 @@ jobs:
 
     steps:
       - checkout
+
+      - run:
+          name: Install AWS CLI & Bash
+          command: apk add --no-cache aws-cli bash     
+
       - run:
           name: Fetch Current Production Tag
           command: |
