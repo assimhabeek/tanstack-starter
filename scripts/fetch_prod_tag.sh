@@ -19,7 +19,7 @@ TASK_DEFINITION_ARN=$(aws ecs describe-services \
 # 2. Check the result and extract the tag
 if [ "$TASK_DEFINITION_ARN" == "None" ] || [ -z "$TASK_DEFINITION_ARN" ] || [ "$TASK_DEFINITION_ARN" == "null" ]; then
     echo "No active service found. Using fallback tag: latest"
-    echo "export PROD_IMAGE_TAG=latest" >> "$BASH_ENV"
+    echo "export CURRENT_PROD_IMAGE_TAG=latest" >> "$BASH_ENV"
 else
     # Get the full image string (e.g., 12345.dkr.ecr.us-east-1.amazonaws.com/repo:v1.0.0)
     FULL_IMAGE=$(aws ecs describe-task-definition \
@@ -32,5 +32,5 @@ else
     TAG=$(echo "$FULL_IMAGE" | cut -d':' -f2)
     
     echo "Found production tag: $TAG"
-    echo "export PROD_IMAGE_TAG=$TAG" >> "$BASH_ENV"
+    echo "export CURRENT_PROD_IMAGE_TAG=$TAG" >> "$BASH_ENV"
 fi

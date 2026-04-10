@@ -131,11 +131,27 @@ jobs:
 
       - run:
           name: Fetch Current Production Tag
+          working_directory: scripts
           command: |
-            chmod +x ./scripts/fetch_prod_tag.sh
-            ./scripts/fetch_prod_tag.sh
+            chmod +x fetch_prod_tag.sh
+            .fetch_prod_tag.sh
+
+      - run:
+          name: Terraform Init & Format
+          working_directory: infrastructure/terraform
+          command: |
+            terraform fmt -check
+            terraform init -input=false
+
+      - run:
+          name: Terraform Validate & Plan
+          working_directory: infrastructure/terraform
+          # keep the current prod image, we don't want to change app code before database migration
+          command: |
+            terraform validate
             source $BASH_ENV
-            echo $PROD_IMAGE_TAG
+            terraform plan -var="container_image_tag=${CURRENT_PROD_IMAGE_TAG}" -out=tfplan
+
 
   destroy:
     docker:
