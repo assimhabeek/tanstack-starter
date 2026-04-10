@@ -117,6 +117,19 @@ jobs:
           name: Terraform Apply
           command: terraform apply -auto-approve tfplan            
   
+  infrastructure-provision:
+    docker:
+      - image: hashicorp/terraform:1.14.8
+
+    steps:
+      - checkout
+      - run:
+          name: Fetch Current Production Tag
+          command: |
+            chmod +x ./scripts/fetch_prod_tag.sh
+            ./scripts/fetch_prod_tag.sh
+            echo $PROD_IMAGE_TAG
+
   destroy:
     docker:
       - image: hashicorp/terraform:1.14.8
@@ -150,52 +163,53 @@ jobs:
 workflows:
   ci-cd:
     jobs:
-      # Parallel CI jobs
-      - lint
-      - test
-      - typecheck
-      - build
+      - infrastructure-provision
+      # # Parallel CI jobs
+      # - lint
+      # - test
+      # - typecheck
+      # - build
 
-      # Build and push Docker image
-      - aws-ecr/build_and_push_image:
-          name: dockerize
-          auth:
-            - aws-cli/setup:
-                region: ${AWS_REGION}
-          checkout: false
-          region: ${AWS_REGION}
-          repo: ${APP_NAME}
-          create_repo: true 
-          tag: "${CIRCLE_SHA1:0:7},latest"
-          dockerfile: Dockerfile
-          path: .
-          attach_workspace: true
-          workspace_root: .
-          context: aws-credentials
-          requires:
-            - lint
-            - test
-            - typecheck
-            - build
+      # # Build and push Docker image
+      # - aws-ecr/build_and_push_image:
+      #     name: dockerize
+      #     auth:
+      #       - aws-cli/setup:
+      #           region: ${AWS_REGION}
+      #     checkout: false
+      #     region: ${AWS_REGION}
+      #     repo: ${APP_NAME}
+      #     create_repo: true 
+      #     tag: "${CIRCLE_SHA1:0:7},latest"
+      #     dockerfile: Dockerfile
+      #     path: .
+      #     attach_workspace: true
+      #     workspace_root: .
+      #     context: aws-credentials
+      #     requires:
+      #       - lint
+      #       - test
+      #       - typecheck
+      #       - build
 
-      # Terraform plan
-      - deploy:
-          context:
-            - terraform
-            - aws-credentials
-          requires:
-            - dockerize
+      # # Terraform plan
+      # - deploy:
+      #     context:
+      #       - terraform
+      #       - aws-credentials
+      #     requires:
+      #       - dockerize
 
-      # This creates the "Pause" button in the CircleCI UI
-      - request-destroy:
-          type: approval
-          requires:
-            - deploy
+      # # This creates the "Pause" button in the CircleCI UI
+      # - request-destroy:
+      #     type: approval
+      #     requires:
+      #       - deploy
 
-      # This job only runs AFTER you click the button above
-      - destroy:
-          context:
-            - terraform
-            - aws-credentials
-          requires:
-            - request-destroy
+      # # This job only runs AFTER you click the button above
+      # - destroy:
+      #     context:
+      #       - terraform
+      #       - aws-credentials
+      #     requires:
+      #       - request-destroy
