@@ -119,7 +119,6 @@ jobs:
   
   infrastructure-provision:
     # Even with this, we still use source $BASH_ENV explicitly because it is more reliable across different Docker images.
-    shell: /bin/bash -leo pipefail
     docker:
       - image: hashicorp/terraform:1.14.8
 
