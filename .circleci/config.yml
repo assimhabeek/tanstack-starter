@@ -134,7 +134,7 @@ jobs:
           working_directory: scripts
           command: |
             chmod +x fetch_prod_tag.sh
-            .fetch_prod_tag.sh
+            ./fetch_prod_tag.sh
 
       - run:
           name: Terraform Init & Format
