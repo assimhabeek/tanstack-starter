@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Define names based on your Terraform convention
 CLUSTER_NAME="${APP_NAME}-cluster"
