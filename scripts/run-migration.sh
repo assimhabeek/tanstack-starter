@@ -52,8 +52,8 @@ while [ "$COUNT" -lt "$MAX_RETRIES" ]; do
             ;;
     esac
 
-    # Wait 10 seconds
-    sleep 10
+    # Wait 30 seconds
+    sleep 30
     COUNT=$(expr "$COUNT" + 1)
 done
 
