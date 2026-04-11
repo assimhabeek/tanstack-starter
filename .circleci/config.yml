@@ -250,7 +250,7 @@ workflows:
             - terraform
             - aws-credentials
           requires:
-            - dockerize
+            - migrate
 
       # This creates the "Pause" button in the CircleCI UI
       - request-destroy:
