@@ -160,30 +160,38 @@ jobs:
 
 
   migrate:
-      docker:
-        - image: alpine:latest
-      steps:
-        - run:
-            name: Install Dependencies
-            command: apk add --no-cache aws-cli bash
-        - run:
-            name: Trigger and Wait for Migration
-            command: |
-              # 1. Start the build and capture the ID
-              BUILD_ID=$(aws codebuild start-build \
-                --project-name "${APP_NAME}-migration" \
-                --source-version "${CIRCLE_BRANCH}" \
-                --query 'build.id' \
-                --output text)
-              
-              echo "Started Build ID: $BUILD_ID"
-              echo "Waiting for migration to succeed..."
+    docker:
+      - image: alpine:latest
+    steps:
+      - run:
+          name: Install Dependencies
+          command: apk add --no-cache aws-cli bash
+      - run:
+          name: Trigger and Monitor Migration
+          command: |
+            BUILD_ID=$(aws codebuild start-build \
+              --project-name "${APP_NAME}-migration" \
+              --source-version "${CIRCLE_BRANCH}" \
+              --query 'build.id' \
+              --output text)
+            
+            echo "Started Build ID: $BUILD_ID"
 
-              # 2. This command pauses the job until the build is finished
-              # It will exit 0 if successful, or 1 if it fails/times out
-              aws codebuild wait build-succeeded --ids "$BUILD_ID"
-              
-              echo "Migration finished successfully!"
+            while true; do
+              # Get status - this works on all CLI versions
+              STATUS=$(aws codebuild batch-get-builds --ids "$BUILD_ID" --query 'builds[0].buildStatus' --output text)
+              echo "Status: $STATUS"
+
+              if [ "$STATUS" = "SUCCEEDED" ]; then
+                echo "Migration successful!"
+                exit 0
+              elif [[ "$STATUS" =~ (FAILED|STOPPED|FAULT|TIMED_OUT) ]]; then
+                echo "Migration failed with status: $STATUS"
+                exit 1
+              fi
+
+              sleep 10
+            done
 
   destroy:
     docker:
