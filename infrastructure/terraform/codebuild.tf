@@ -128,7 +128,8 @@ resource "aws_iam_role_policy" "codebuild_vpc_management" {
           "ec2:DescribeSubnets",
           "ec2:DescribeSecurityGroups",
           "ec2:DescribeVpcs",
-          "ec2:CreateNetworkInterfacePermission"
+          "ec2:CreateNetworkInterfacePermission",
+          "ec2:DescribeDhcpOptions" # <--- Add this permission
         ]
         Effect   = "Allow"
         Resource = "*"
