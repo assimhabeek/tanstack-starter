@@ -47,6 +47,18 @@ resource "aws_security_group" "ecs_tasks" {
   }
 }
 
+resource "aws_security_group" "codebuild_migration_sg" {
+  name   = "${var.app_name}-codebuild_migration_sg"
+  vpc_id = aws_vpc.main.id
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"] # Needs internet to run 'pnpm install'
+  }
+}
+
 # 2. Security Group for the PostgreSQL Database
 resource "aws_security_group" "db_sg" {
   name        = "${var.app_name}-db-sg"
@@ -58,7 +70,7 @@ resource "aws_security_group" "db_sg" {
     from_port       = 5432
     to_port         = 5432
     protocol        = "tcp"
-    security_groups = [aws_security_group.ecs_tasks.id] # The secret sauce
+    security_groups = [aws_security_group.ecs_tasks.id, aws_security_group.codebuild_migration_sg.id] # The secret sauce
   }
 
   # Outbound: Usually empty for DBs (more secure)

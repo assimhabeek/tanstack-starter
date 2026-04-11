@@ -1,5 +1,4 @@
 terraform/.terraform
-terraform/certs
 .terraform.lock.hcl
 terraform/plan
 terraform/*.tfstate

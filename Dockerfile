@@ -1,31 +1,31 @@
-# Stage 1: Build
-FROM node:20-slim AS builder
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
-WORKDIR /build
-
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
-COPY app/package.json ./app/
-RUN pnpm install --frozen-lockfile
-
-COPY app/ ./app/
-WORKDIR /build/app
-RUN pnpm build 
-
-# Stage 2: Runtime (Ultra Clean)
+# Use node-slim for small production image
 FROM node:20-slim
+
+# Install curl + ca-certificates
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
 WORKDIR /app
 
-# We only copy .output. Because of 'noExternal', 
-# instrument.server.mjs now has everything it needs inside the folder.
-COPY --from=builder /build/app/.output ./
+# --- Download RDS CA certificate first ---
+# This layer rarely changes, so Docker caches it
+RUN mkdir -p /app/certs && \
+    curl -fSL https://truststore.pki.rds.amazonaws.com/eu-west-3/eu-west-3-bundle.pem \
+    -o /app/certs/rds-ca.pem
 
+# --- Copy app last ---
+# Copy only the already built app output to leverage layer caching
+COPY app/.output ./
+
+# Set environment variables
 ENV PORT=3000
 ENV HOST=0.0.0.0
-
-EXPOSE 3000
 ENV NODE_ENV=production
 
-# Recommended: Sentry runs as a loader, but the files are internal to the bundle
+# Expose port
+EXPOSE 3000
+
+# Start app with Sentry instrumentation
 CMD ["node", "--import", "./server/instrument.server.mjs", "./server/index.mjs"]

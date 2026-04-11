@@ -2,6 +2,9 @@ version: 2.1
 
 orbs:
   node: circleci/node@5.2
+  aws-ecr: circleci/aws-ecr@9.8.1
+  aws-cli: circleci/aws-cli@5.4.1
+
 
 # -----------------------------
 # Reusable commands
@@ -38,15 +41,6 @@ commands:
 # Jobs
 # -----------------------------
 jobs:
-  # 1️⃣ Setup job — install dependencies once
-  setup:
-    docker:
-      - image: cimg/node:22.14.0
-    steps:
-      - checkout
-      - install-deps
-
-  # 2️⃣ Lint job
   lint:
     docker:
       - image: cimg/node:22.14.0
@@ -55,7 +49,6 @@ jobs:
       - install-deps
       - run: pnpm biome ci .
 
-  # 3️⃣ Test job
   test:
     docker:
       - image: cimg/node:22.14.0
@@ -67,7 +60,6 @@ jobs:
           working_directory: app
           command: pnpm test
 
-  # 4️⃣ Typecheck job
   typecheck:
     docker:
       - image: cimg/node:22.14.0
@@ -79,25 +71,200 @@ jobs:
           working_directory: app
           command: pnpm tsc --noEmit
 
-  # 5️⃣ Build job
   build:
     docker:
       - image: cimg/node:22.14.0
     steps:
       - checkout
       - install-deps
+      # values will be baked into the build files
+      - run:
+          name: Generate production environment variables file (browser only)
+          command: pnpm generate-prod-env
       - run:
           name: Build App
           working_directory: app
           command: pnpm build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - app/.output
+            - Dockerfile
 
+  # pushes the latest container image to ecs
+  deploy:
+    docker:
+      - image: hashicorp/terraform:1.14.8
+    # Set the working directory once to avoid 'cd' in every step
+    working_directory: /tmp/workspace/infrastructure/terraform
+
+    steps:
+      - checkout:
+          path: /tmp/workspace  # Need to checkout to the root
+      - run:
+          name: Terraform Validate & Plan
+          command: |
+            terraform init -input=false
+            terraform plan -var="container_image_tag=${CIRCLE_SHA1:0:7}" -out=tfplan
+      - run:
+          name: Terraform Apply
+          command: terraform apply -auto-approve tfplan            
+  
+  provision:
+    # Even with this, we still use source $BASH_ENV explicitly because it is more reliable across different Docker images.
+    docker:
+      - image: hashicorp/terraform:1.14.8
+
+    steps:
+      - checkout
+
+      - run:
+          name: Install AWS CLI & Bash
+          command: apk add --no-cache aws-cli bash     
+
+      - run:
+          name: Fetch Current Production Tag
+          working_directory: scripts
+          command: |
+            chmod +x fetch_prod_tag.sh
+            ./fetch_prod_tag.sh
+
+      - run:
+          name: Terraform Init & Format
+          working_directory: infrastructure/terraform
+          command: |
+            terraform fmt -check
+            terraform init -input=false
+
+      - run:
+          name: Terraform Validate & Plan
+          working_directory: infrastructure/terraform
+          # keep the current prod image, we don't want to change app code before database migration
+          command: |
+            terraform validate
+            source $BASH_ENV
+            terraform plan -var="container_image_tag=${CURRENT_PROD_IMAGE_TAG}" -out=tfplan
+
+      # Persist the plan file if you intend to separate 'plan' and 'apply' 
+      # into different jobs. Otherwise, just run apply.
+      - run:
+          name: Terraform Apply
+          working_directory: infrastructure/terraform
+          command: terraform apply -auto-approve tfplan            
+
+
+  migrate:
+    docker:
+      - image: alpine:latest
+    steps:
+      - checkout
+      - run:
+          name: Install AWS CLI
+          command: apk add --no-cache aws-cli
+      - run:
+          name: Run Migration Script
+          working_directory: scripts
+          command: |
+            chmod +x run-migration.sh
+            ./run-migration.sh "${APP_NAME}-migration" "${CIRCLE_BRANCH}"
+  
+  destroy:
+    docker:
+      - image: hashicorp/terraform:1.14.8
+    working_directory: /tmp/workspace/infrastructure/terraform
+    steps:
+      - checkout:
+          path: /tmp/workspace  # Need to checkout to the root
+      - run:
+          name: Terraform Init
+          command: terraform init -input=false
+
+      - run:
+          name: Terraform Destroy Plan
+          command: |
+            terraform plan -destroy -out=destroy_plan
+      
+      # Optional: Store the plan as an artifact so you can download and read it
+      - store_artifacts:
+          # Path to the file you want to save
+          path: destroy_plan
+          # Optional: The folder name it will appear under in the UI
+          destination: terraform-plans
+
+      - run:
+          name: Terraform Destroy
+          # -auto-approve is safe here because the "approval" happens in the UI
+          command: terraform destroy -auto-approve
 # -----------------------------
 # Workflows
 # -----------------------------
 workflows:
-  quality-gate:
+  ci-cd:
     jobs:
       - lint
       - test
       - typecheck
       - build
+
+      - provision:
+          context:
+            - terraform
+            - aws-credentials
+          requires:
+            - lint
+            - test
+            - typecheck
+            - build
+          filters:
+            branches:
+              only: main # This job only runs when pushing to 'main'
+
+      - migrate:
+          context:
+            - terraform
+            - aws-credentials
+          requires:
+            - provision
+
+      # # Parallel CI jobs
+
+      # # Build and push Docker image
+      - aws-ecr/build_and_push_image:
+          name: dockerize
+          auth:
+            - aws-cli/setup:
+                region: ${AWS_REGION}
+          checkout: false
+          region: ${AWS_REGION}
+          repo: ${APP_NAME}
+          create_repo: true 
+          tag: "${CIRCLE_SHA1:0:7},latest"
+          dockerfile: Dockerfile
+          path: .
+          attach_workspace: true
+          workspace_root: .
+          context: aws-credentials
+          requires:
+            - provision
+
+      # # Terraform plan
+      - deploy:
+          context:
+            - terraform
+            - aws-credentials
+          requires:
+            - migrate
+
+      # This creates the "Pause" button in the CircleCI UI
+      - request-destroy:
+          type: approval
+          requires:
+            - deploy
+
+      # This job only runs AFTER you click the button above
+      - destroy:
+          context:
+            - terraform
+            - aws-credentials
+          requires:
+            - request-destroy

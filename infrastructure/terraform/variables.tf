@@ -1,7 +1,7 @@
 variable "app_name" {
   description = "The name of the application used for tagging and resource naming"
   type        = string
-  default     = "tanstack-starter"
+  default     = "zeroday-kit"
 }
 
 variable "repository_owner" {
@@ -13,13 +13,13 @@ variable "repository_owner" {
 variable "repository_name" {
   description = "The name of the GitHub repository"
   type        = string
-  default     = "tanstack-starter"
+  default     = "zeroday-kit"
 }
 
 variable "aws_region" {
   description = "AWS region to deploy resources"
   type        = string
-  default     = "us-east-1"
+  default     = "eu-west-3"
 }
 
 variable "vpc_cidr" {
@@ -109,5 +109,18 @@ variable "clerk_secret" {
 variable "app_title" {
   type        = string
   description = "The title for your VITE_APP_TITLE"
-  default     = "My Fullstack App"
+  default     = "ZeroDay Kit"
+}
+
+
+variable "container_image_tag" {
+  type        = string
+  description = "Docker image tag"
+  default     = "latest"
+}
+
+variable "db_ca_cert" {
+  type        = string
+  description = "Docker image tag"
+  default     = "/app/certs/rds-ca.pem"
 }

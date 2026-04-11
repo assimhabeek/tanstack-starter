@@ -101,6 +101,7 @@ Am example chat application built with TanStack Start, TanStack Store, and Claud
 
 ## Setting up Clerk
 
+
 - Set the `VITE_CLERK_PUBLISHABLE_KEY` in your `.env`.
 
 ## Routing

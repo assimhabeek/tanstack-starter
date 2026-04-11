@@ -37,9 +37,7 @@ resource "aws_iam_role_policy" "ecs_db_url_access" {
       Effect = "Allow"
       Action = ["secretsmanager:GetSecretValue"]
       Resource = [
-        aws_secretsmanager_secret.db_url.arn,
-        aws_secretsmanager_secret.clerk_secret.arn,
-        aws_secretsmanager_secret.sentry_token.arn
+        aws_secretsmanager_secret.db_url.arn
       ]
     }]
   })
@@ -47,8 +45,9 @@ resource "aws_iam_role_policy" "ecs_db_url_access" {
 
 # 3. CloudWatch Log Group (To see your console.logs)
 resource "aws_cloudwatch_log_group" "ecs_logs" {
-  name              = "/ecs/${var.app_name}"
+  name_prefix       = "/ecs/${var.app_name}-"
   retention_in_days = 7
+  skip_destroy      = true
 }
 
 
@@ -63,7 +62,7 @@ resource "aws_ecs_task_definition" "app" {
   container_definitions = jsonencode([
     {
       name      = "${var.app_name}"
-      image     = "${aws_ecr_repository.app.repository_url}:latest"
+      image     = "${aws_ecr_repository.app.repository_url}:${var.container_image_tag}"
       essential = true
       portMappings = [
         {
@@ -73,32 +72,18 @@ resource "aws_ecs_task_definition" "app" {
         }
       ],
       environment = [
-        { name = "VITE_APP_TITLE", value = var.app_title },
-        { name = "VITE_CLERK_PUBLISHABLE_KEY", value = var.clerk_pub_key },
-        { name = "VITE_SENTRY_DSN", value = var.sentry_dsn },
         { name = "SENTRY_ORG", value = var.sentry_org },
         { name = "SENTRY_PROJECT", value = var.sentry_project },
         { name = "PORT", value = tostring(var.app_port) },
-        {
-          name = "DB_CA_CERT",
-          # This reads the entire file (all blocks) into the variable
-          value = file("${path.module}/certs/us-east-1-bundle.pem")
-        },
-
+        { name = "DB_CA_CERT", value = var.db_ca_cert },
+        { name = "CLERK_SECRET_KEY", value = var.clerk_secret },
+        { name = "SENTRY_AUTH_TOKEN", value = var.sentry_token }
       ]
       # SENSITIVE: Hidden values pulled at runtime
       secrets = [
         {
           name      = "DATABASE_URL"
           valueFrom = aws_secretsmanager_secret.db_url.arn
-        },
-        {
-          name      = "CLERK_SECRET_KEY"
-          valueFrom = aws_secretsmanager_secret.clerk_secret.arn
-        },
-        {
-          name      = "SENTRY_AUTH_TOKEN"
-          valueFrom = aws_secretsmanager_secret.sentry_token.arn
         }
       ],
       logConfiguration = {
@@ -128,10 +113,10 @@ resource "aws_ecs_service" "main" {
   # It forces a redeployment even if the Task Definition hasn't changed.
   force_new_deployment = true
 
-  triggers = {
-    # Using a timestamp ensures this value is different every time you run 'apply'
-    redeployment = plantimestamp()
-  }
+  # triggers = {
+  # Using a timestamp ensures this value is different every time you run 'apply'
+  # redeployment = plantimestamp()
+  # }
 
   network_configuration {
     security_groups  = [aws_security_group.ecs_tasks.id]

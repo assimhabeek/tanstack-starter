@@ -11,9 +11,9 @@ locals {
   # This decodes the JSON object that RDS automatically creates
   rds_creds = jsondecode(data.aws_secretsmanager_secret_version.rds_password.secret_string)
 
-# URL encode the password to handle special characters like '#' and '|'
+  # URL encode the password to handle special characters like '#' and '|'
   encoded_pass = urlencode(local.rds_creds.password)
-  
+
   # Construct the clean connection string using parsed values
   # Note: we use local.rds_creds.password instead of the whole JSON string
   constructed_db_url = "postgresql://${aws_db_instance.postgres.username}:${local.encoded_pass}@${aws_db_instance.postgres.address}:${aws_db_instance.postgres.port}/${aws_db_instance.postgres.db_name}?sslmode=no-verify"
@@ -31,24 +31,4 @@ resource "aws_secretsmanager_secret" "db_url" {
 resource "aws_secretsmanager_secret_version" "db_url_value" {
   secret_id     = aws_secretsmanager_secret.db_url.id
   secret_string = local.constructed_db_url
-}
-
-# 4. Third-Party Shell Secrets (Value to be set manually in Console)
-resource "aws_secretsmanager_secret" "clerk_secret" {
-  name = "${var.app_name}/clerk-secret-key"
-}
-
-resource "aws_secretsmanager_secret" "sentry_token" {
-  name = "${var.app_name}/sentry-auth-token"
-}
-
-
-resource "aws_secretsmanager_secret_version" "sentry_token_value" {
-  secret_id     = aws_secretsmanager_secret.sentry_token.id
-  secret_string = var.sentry_token
-}
-
-resource "aws_secretsmanager_secret_version" "clerk_secret_value" {
-  secret_id     = aws_secretsmanager_secret.clerk_secret.id
-  secret_string = var.clerk_secret
 }
