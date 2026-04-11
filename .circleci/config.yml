@@ -116,7 +116,7 @@ jobs:
           name: Terraform Apply
           command: terraform apply -auto-approve tfplan            
   
-  infrastructure-provision:
+  provision:
     # Even with this, we still use source $BASH_ENV explicitly because it is more reliable across different Docker images.
     docker:
       - image: hashicorp/terraform:1.14.8
@@ -159,7 +159,7 @@ jobs:
           command: terraform apply -auto-approve tfplan            
 
 
-  migration:
+  migrate:
       docker:
         - image: alpine:latest
       steps:
@@ -218,7 +218,7 @@ jobs:
 workflows:
   ci-cd:
     jobs:
-      - infrastructure-provision:
+      - provision:
           context:
             - terraform
             - aws-credentials
@@ -228,7 +228,7 @@ workflows:
             - terraform
             - aws-credentials
           requires:
-            - infrastructure-provision
+            - provision
 
       # # Parallel CI jobs
       # - lint
