@@ -58,7 +58,7 @@ resource "aws_codebuild_project" "db_migration" {
 }
 
 resource "aws_iam_role" "codebuild_migration_role" {
-  name = "${var.app_name}-codebuild-role"
+  name = "${var.app_name}-codebuild_migration_role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -85,6 +85,18 @@ resource "aws_iam_role_policy" "codebuild_secrets_policy" {
         Effect   = "Allow"
         Resource = [aws_secretsmanager_secret.db_url.arn]
       },
+    ]
+  })
+}
+
+
+resource "aws_iam_role_policy" "codebuild_cloudwatch" {
+  name = "CodeBuildCloudWatchLogsPolicy"
+  role = aws_iam_role.codebuild_migration_role.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
       {
         Effect = "Allow"
         Action = [
@@ -92,9 +104,35 @@ resource "aws_iam_role_policy" "codebuild_secrets_policy" {
           "logs:CreateLogStream",
           "logs:PutLogEvents"
         ]
-        Resource = ["*"]
+        # It's best practice to scope this to your project's log group
+        Resource = [
+          "arn:aws:logs:*:*:log-group:/aws/codebuild/${var.app_name}-migration",
+          "arn:aws:logs:*:*:log-group:/aws/codebuild/${var.app_name}-migration:*"
+        ]
       }
     ]
   })
 }
+resource "aws_iam_role_policy" "codebuild_vpc_management" {
+  name = "CodeBuildVPCManagementPolicy"
+  role = aws_iam_role.codebuild_migration_role.name
 
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "ec2:CreateNetworkInterface",
+          "ec2:DescribeNetworkInterfaces",
+          "ec2:DeleteNetworkInterface",
+          "ec2:DescribeSubnets",
+          "ec2:DescribeSecurityGroups",
+          "ec2:DescribeVpcs",
+          "ec2:CreateNetworkInterfacePermission"
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      }
+    ]
+  })
+}
