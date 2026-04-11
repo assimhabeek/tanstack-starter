@@ -163,14 +163,16 @@ jobs:
     docker:
       - image: alpine:latest
     steps:
+      - checkout
       - run:
           name: Install AWS CLI
           command: apk add --no-cache aws-cli
       - run:
           name: Run Migration Script
+          working_directory: scripts
           command: |
-            chmod +x ./scripts/run-migration.sh
-            ./scripts/run-migration.sh "${APP_NAME}-migration" "${CIRCLE_BRANCH}"
+            chmod +x run-migration.sh
+            ./run-migration.sh "${APP_NAME}-migration" "${CIRCLE_BRANCH}"
   
   destroy:
     docker:
