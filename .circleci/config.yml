@@ -215,6 +215,9 @@ workflows:
             - test
             - typecheck
             - build
+          filters:
+            branches:
+              only: main # This job only runs when pushing to 'main'
 
       - migrate:
           context:

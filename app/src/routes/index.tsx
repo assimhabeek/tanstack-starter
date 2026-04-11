@@ -33,7 +33,6 @@ export const Route = createFileRoute('/')({
 function App() {
   const { data: todos, refetch } = useSuspenseQuery(todoQueryOptions)
 
-  console.log(todos)
   const { mutate: create } = useMutation<TodoCreateOutput, DefaultError, TodoCreateInput>({
     mutationFn: (input) => orpc.todo.create.call(input),
     onSuccess: (data) => {
