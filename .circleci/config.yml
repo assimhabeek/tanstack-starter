@@ -165,7 +165,7 @@ jobs:
     steps:
       - run:
           name: Install Dependencies
-          command: apk add --no-cache aws-cli bash
+          command: apk add --no-cache aws-cli
       - run:
           name: Trigger and Monitor Migration
           command: |
@@ -178,21 +178,24 @@ jobs:
             echo "Started Build ID: $BUILD_ID"
 
             while true; do
-              # Get status - this works on all CLI versions
               STATUS=$(aws codebuild batch-get-builds --ids "$BUILD_ID" --query 'builds[0].buildStatus' --output text)
               echo "Status: $STATUS"
 
               if [ "$STATUS" = "SUCCEEDED" ]; then
                 echo "Migration successful!"
                 exit 0
-              elif [[ "$STATUS" =~ (FAILED|STOPPED|FAULT|TIMED_OUT) ]]; then
-                echo "Migration failed with status: $STATUS"
-                exit 1
               fi
+
+              # Check for failure states using standard case matching
+              case "$STATUS" in 
+                FAILED|STOPPED|FAULT|TIMED_OUT)
+                  echo "Migration failed with status: $STATUS"
+                  exit 1
+                  ;;
+              esac
 
               sleep 10
             done
-
   destroy:
     docker:
       - image: hashicorp/terraform:1.14.8
