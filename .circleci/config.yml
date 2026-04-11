@@ -164,38 +164,14 @@ jobs:
       - image: alpine:latest
     steps:
       - run:
-          name: Install Dependencies
+          name: Install AWS CLI
           command: apk add --no-cache aws-cli
       - run:
-          name: Trigger and Monitor Migration
+          name: Run Migration Script
           command: |
-            BUILD_ID=$(aws codebuild start-build \
-              --project-name "${APP_NAME}-migration" \
-              --source-version "${CIRCLE_BRANCH}" \
-              --query 'build.id' \
-              --output text)
-            
-            echo "Started Build ID: $BUILD_ID"
-
-            while true; do
-              STATUS=$(aws codebuild batch-get-builds --ids "$BUILD_ID" --query 'builds[0].buildStatus' --output text)
-              echo "Status: $STATUS"
-
-              if [ "$STATUS" = "SUCCEEDED" ]; then
-                echo "Migration successful!"
-                exit 0
-              fi
-
-              # Check for failure states using standard case matching
-              case "$STATUS" in 
-                FAILED|STOPPED|FAULT|TIMED_OUT)
-                  echo "Migration failed with status: $STATUS"
-                  exit 1
-                  ;;
-              esac
-
-              sleep 10
-            done
+            chmod +x ./scripts/run-migration.sh
+            ./scripts/run-migration.sh "${APP_NAME}-migration" "${CIRCLE_BRANCH}"
+  
   destroy:
     docker:
       - image: hashicorp/terraform:1.14.8
