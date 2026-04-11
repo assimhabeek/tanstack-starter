@@ -110,9 +110,8 @@ jobs:
           name: Terraform Validate & Plan
           command: |
             terraform validate
+            # update container image tag to the current commit
             terraform plan -var="container_image_tag=${CIRCLE_SHA1:0:7}" -out=tfplan
-      # Persist the plan file if you intend to separate 'plan' and 'apply' 
-      # into different jobs. Otherwise, just run apply.
       - run:
           name: Terraform Apply
           command: terraform apply -auto-approve tfplan            
@@ -152,6 +151,39 @@ jobs:
             source $BASH_ENV
             terraform plan -var="container_image_tag=${CURRENT_PROD_IMAGE_TAG}" -out=tfplan
 
+      # Persist the plan file if you intend to separate 'plan' and 'apply' 
+      # into different jobs. Otherwise, just run apply.
+      - run:
+          name: Terraform Apply
+          working_directory: infrastructure/terraform
+          command: terraform apply -auto-approve tfplan            
+
+
+  migration:
+      docker:
+        - image: alpine:latest
+      steps:
+        - run:
+            name: Install Dependencies
+            command: apk add --no-cache aws-cli bash
+        - run:
+            name: Trigger and Wait for Migration
+            command: |
+              # 1. Start the build and capture the ID
+              BUILD_ID=$(aws codebuild start-build \
+                --project-name "${APP_NAME}-migration" \
+                --source-version "${CIRCLE_BRANCH}" \
+                --query 'build.id' \
+                --output text)
+              
+              echo "Started Build ID: $BUILD_ID"
+              echo "Waiting for migration to succeed..."
+
+              # 2. This command pauses the job until the build is finished
+              # It will exit 0 if successful, or 1 if it fails/times out
+              aws codebuild wait build-succeeded --ids "$BUILD_ID"
+              
+              echo "Migration finished successfully!"
 
   destroy:
     docker:
@@ -190,6 +222,13 @@ workflows:
           context:
             - terraform
             - aws-credentials
+
+      - migrate:
+          context:
+            - terraform
+            - aws-credentials
+          requires:
+            - infrastructure-provision
 
       # # Parallel CI jobs
       # - lint
